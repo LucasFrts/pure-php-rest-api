@@ -2,17 +2,17 @@
 
 require __DIR__ . '/vendor/autoload.php';
 
-use App\Support\Config;
-$LOG_PATH = Config::get('LOG_PATH', '');
+$container = require __DIR__ . '/bootstrap/app.php';
+$router    = require __DIR__ . '/routes/api.php';
 
-echo "[LOG_PATH]: $LOG_PATH";
+$method  = $_POST['_method'] ?? $_SERVER['REQUEST_METHOD'] ?? 'GET';
+$path    = rtrim(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/') ?: '/';
+$handler = $container->get(\App\Support\ExceptionHandler::class);
 
-$router = require __DIR__ . '/routes/api.php';
-var_dump($router);
-
-$method = $_POST['_method'] ?? $_SERVER['REQUEST_METHOD'];
-$request_uri = parse_url($_SERVER['REQUEST_URI']);
-$path = $request_uri['path'];
-$query = $request_uri['query'];
-
-$router->route($path, $method, $query);
+try {
+    $route = $router->route($path, $method);
+    $dispatcher = new \App\Support\Dispatcher($container);
+    $dispatcher->dispatch($route);
+} catch (\Throwable $e) {
+    $handler->handle($e);
+}

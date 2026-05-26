@@ -2,57 +2,54 @@
 
 namespace App\Support;
 
-use Monolog\ErrorHandler;
+use App\Contracts\ConfigInterface;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger as MonoLogger;
+use Psr\Log\AbstractLogger;
+use Psr\Log\LoggerInterface;
 
-class Logger extends MonoLogger
+/**
+ * Wrapper de logger que encapsula o Monolog como driver interno.
+ *
+ * Estende AbstractLogger do PSR-3 para implementar apenas o método log(),
+ * enquanto os demais métodos de conveniência (info, error, debug, etc.)
+ * são herdados automaticamente. Isso desacopla o código da aplicação do
+ * Monolog diretamente: se quisermos trocar o driver no futuro, basta
+ * alterar esta classe sem tocar em nada que usa LoggerInterface.
+ *
+ * O caminho do arquivo de log é lido da configuração via LOG_PATH,
+ * com fallback para storage/logs dentro do projeto.
+ */
+class Logger extends AbstractLogger
 {
+    /** Driver concreto de log (Monolog) que processa as mensagens. */
+    private LoggerInterface $driver;
 
-    private static $loggers = [];
-
-    public function __construct($key = "app", $config = null)
+    /**
+     * @param ConfigInterface $config Configurações da aplicação, usadas para obter LOG_PATH.
+     */
+    public function __construct(ConfigInterface $config)
     {
-        parent::__construct($key);
+        $logPath = $config->get('LOG_PATH', __DIR__ . '/../../storage/logs');
 
-        if (empty($config)) {
-            $LOG_PATH = Config::get('LOG_PATH', __DIR__ . '/../../logs');
-            $config = [
-                'logFile' => "{$LOG_PATH}/{$key}.log",
-                'logLevel' => MonoLogger::DEBUG
-            ];
-        }
+        $monolog = new MonoLogger('app');
+        $monolog->pushHandler(new StreamHandler("{$logPath}/app.log"));
 
-        $this->pushHandler(new StreamHandler($config['logFile'], $config['logLevel']));
+        $this->driver = $monolog;
     }
 
-    public static function getInstance($key = "app", $config = null)
+    /**
+     * Delega o registro da mensagem ao driver interno.
+     *
+     * Assinatura sem type hints em $level e $message para manter compatibilidade
+     * com psr/log ~1.0, que não declara tipos nesses parâmetros.
+     *
+     * @param mixed                $level   Nível do log (ex: 'info', 'error').
+     * @param mixed                $message Mensagem a registrar.
+     * @param array<string, mixed> $context Dados de contexto opcionais.
+     */
+    public function log($level, $message, array $context = []): void
     {
-        if (empty(self::$loggers[$key])) {
-            self::$loggers[$key] = new MonoLogger($key, $config);
-        }
-
-        return self::$loggers[$key];
-    }
-
-    public static function enableSystemLogs()
-    {
-
-        $LOG_PATH = Config::get('LOG_PATH', __DIR__ . '/../../logs');
-
-        // Error Log
-        self::$loggers['error'] = new MonoLogger('errors');
-        self::$loggers['error']->pushHandler(new StreamHandler("{$LOG_PATH}/errors.log"));
-        ErrorHandler::register(self::$loggers['error']);
-
-        // Request Log
-        $data = [
-            $_SERVER,
-            $_REQUEST,
-            trim(file_get_contents("php://input"))
-        ];
-        self::$loggers['request'] = new MonoLogger('request');
-        self::$loggers['request']->pushHandler(new StreamHandler("{$LOG_PATH}/request.log"));
-        self::$loggers['request']->info("REQUEST", $data);
+        $this->driver->log($level, $message, $context);
     }
 }

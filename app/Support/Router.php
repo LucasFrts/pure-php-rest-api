@@ -145,14 +145,8 @@ class Router
     {
         if($this->hasPrefix()){
             $uri = rtrim($this->prefix, '/') . '/' . ltrim($uri, '/');
-            $this->clearPrefix();
         }
 
         return $uri;
-    }
-
-    private function clearPrefix() : void
-    {
-        $this->prefix = null;
     }
 }

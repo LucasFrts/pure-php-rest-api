@@ -4,7 +4,7 @@ use App\Support\Router;
 
 $router = new Router;
 $router
-    ->get('/', 'Home@Dale')
-    ->get('/teste', 'Aloha@makaka');
+    ->prefix('/api/v1')
+    ->get('/turmas', 'TurmasController@index');
 
 return $router;
