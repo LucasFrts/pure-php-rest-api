@@ -1,0 +1,19 @@
+{
+    "name": "frtsjson/dot-group",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Lucas Freitas",
+            "email": "lmrfreitas9@gmail.com"
+        }
+    ],
+    "require": {
+        "monolog/monolog": "1.25.1",
+        "psr/container": "^2.0"
+    }
+}
