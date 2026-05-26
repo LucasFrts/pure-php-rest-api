@@ -3,6 +3,7 @@ services:
     build: .
     volumes:
       - .:/var/www/html
+      - vendor:/var/www/html/vendor
     networks:
       - app-network
     depends_on:
@@ -37,3 +38,4 @@ networks:
 
 volumes:
   mysql_data:
+  vendor:
