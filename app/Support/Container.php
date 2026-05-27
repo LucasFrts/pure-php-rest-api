@@ -173,4 +173,16 @@ class Container implements ContainerInterface
         }
         return static::$instance;
     }
+
+    /**
+     * Define uma nova instância singleton do container.
+     *
+     * Útil para testes ou substituição dinâmica da instância.
+     *
+     * @param Container $instance A nova instância do container.
+     */
+    public static function setContainer(Container $instance): void
+    {
+        static::$instance = $instance;
+    }
 }
