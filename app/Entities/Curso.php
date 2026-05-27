@@ -3,6 +3,7 @@
 namespace App\Entities;
 
 use App\Contracts\EntityInterface;
+use App\Enums\Temas;
 
 class Curso implements EntityInterface
 {

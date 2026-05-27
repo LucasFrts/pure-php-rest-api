@@ -45,14 +45,15 @@ class RouterTest extends TestCase
         $this->assertSame('/api/turmas', $route['uri']);
     }
 
-    public function test_prefix_is_cleared_after_route_registration(): void
+    public function test_prefix_applies_to_all_subsequent_routes(): void
     {
-        $this->router->prefix('/api')->get('/turmas', [\stdClass::class, 'index']);
+        $this->router->prefix('/api');
+        $this->router->get('/turmas', [\stdClass::class, 'index']);
         $this->router->get('/outros', [\stdClass::class, 'index']);
 
-        $route = $this->router->route('/outros', 'GET');
+        $route = $this->router->route('/api/outros', 'GET');
 
-        $this->assertSame('/outros', $route['uri']);
+        $this->assertSame('/api/outros', $route['uri']);
     }
 
     public function test_throws_route_not_found_for_unknown_uri(): void

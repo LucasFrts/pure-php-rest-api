@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS cursos (
     titulo     TEXT NOT NULL,
     descricao  TEXT NOT NULL,
     tema       TEXT NOT NULL,
-    imagem_url TEXT NOT NULL
+    url_imagem TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS turmas (

@@ -17,7 +17,7 @@ class CursosController extends BaseController
             'titulo' => $this->request()->query('titulo'),
             'tema'   => $this->request()->query('tema'),
         ]);
-        return $this->response()->success(['data' => $this->service->getAvailable($filters)]);
+        return $this->response()->success(['data' => $this->service->get($filters)]);
     }
 
     public function store(): ResponseInterface

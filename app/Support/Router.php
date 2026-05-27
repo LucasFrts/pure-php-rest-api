@@ -21,6 +21,7 @@ class Router
     /** @var array<int, array{uri: string, controller: string, method: string, action: string}> */
     protected array $routes = [];
     protected string|null $prefix = null;
+    protected string|null $permanentPrefix = null;
 
     /**
      * Registra uma rota para requisições GET.
@@ -124,12 +125,13 @@ class Router
 
     public function prefix(string $prefix) : self
     {
-        if($this->hasPrefix()){
-            $this->prefix .= "/{$prefix}";
-            return $this;
+        if ($this->permanentPrefix !== null) {
+            $this->permanentPrefix = rtrim($this->permanentPrefix, '/') . '/' . ltrim($prefix, '/');
+        } else {
+            $this->permanentPrefix = $prefix;
         }
 
-        $this->prefix = $prefix;
+        $this->prefix = $this->permanentPrefix;
         return $this;
     }
 
@@ -143,7 +145,7 @@ class Router
     private function add(string $uri, array $action, string $method): void
     {
         $uri = $this->withPrefix($uri);
-        $this->prefix = null;
+        $this->prefix = $this->permanentPrefix;
         [$controller, $controllerAction] = $action;
         $this->routes[] = [
             'uri'        => $uri,

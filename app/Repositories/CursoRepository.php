@@ -4,7 +4,7 @@ namespace App\Repositories;
 
 use App\Contracts\Repositories\CursoRepositoryInterface;
 use App\Entities\Curso;
-use App\Entities\Temas;
+use App\Enums\Temas;
 use App\Exceptions\Http\NotFound;
 
 class CursoRepository extends BaseRepository implements CursoRepositoryInterface

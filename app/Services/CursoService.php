@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Contracts\Repositories\CursoRepositoryInterface;
 use App\Contracts\Services\CursoServiceInterface;
 use App\Entities\Curso;
-use App\Entities\Temas;
+use App\Enums\Temas;
 
 class CursoService implements CursoServiceInterface
 {
@@ -34,7 +34,7 @@ class CursoService implements CursoServiceInterface
             $data['titulo'],
             $data['descricao'],
             Temas::fromString($data['tema']),
-            $data['url_imagem']
+            $data['imagem_url']
         );
 
         return $this->repo->store($curso);
@@ -48,7 +48,7 @@ class CursoService implements CursoServiceInterface
             $data['titulo']     ?? $existing->getTitulo(),
             $data['descricao']  ?? $existing->getDescricao(),
             isset($data['tema']) ? Temas::fromString($data['tema']) : $existing->getTema(),
-            $data['url_imagem'] ?? $existing->getUrlImagem()
+            $data['imagem_url'] ?? $existing->getUrlImagem()
         );
 
         return $this->repo->update($id, $curso);

@@ -6,7 +6,7 @@ use App\Contracts\Repositories\CursoRepositoryInterface;
 use App\Contracts\Repositories\MatriculaRepositoryInterface;
 use App\Contracts\Repositories\TurmaRepositoryInterface;
 use App\Contracts\Services\TurmaServiceInterface;
-use App\Entities\StatusTurma;
+use App\Enums\StatusTurma;
 use App\Entities\Turma;
 use DateTime;
 

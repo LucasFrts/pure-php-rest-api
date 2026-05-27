@@ -10,11 +10,16 @@ class BaseController
 {
     public function response(): ResponseInterface
     {
-        return Container::getContainer()->get(ResponseInterface::class);
+        return $this->getService(ResponseInterface::class);
     }
 
     public function request(): RequestInterface
     {
-        return Container::getContainer()->get(RequestInterface::class);
+        return $this->getService(RequestInterface::class);
+    }
+
+    private function getService(string $serviceInterface) : mixed
+    {
+        return Container::getContainer()->get($serviceInterface);
     }
 }

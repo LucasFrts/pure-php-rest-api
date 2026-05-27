@@ -3,6 +3,7 @@
 namespace App\Entities;
 
 use App\Contracts\EntityInterface;
+use App\Enums\StatusTurma;
 use DateTime;
 
 class Turma implements EntityInterface
