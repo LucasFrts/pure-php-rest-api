@@ -5,6 +5,7 @@ namespace Tests\Services;
 use App\Contracts\Repositories\UsuarioRepositoryInterface;
 use App\Entities\Usuario;
 use App\Exceptions\Http\NotFound;
+use App\Exceptions\Http\UnprocessableEntity;
 use App\Services\UsuarioService;
 use App\ValueObjects\Email;
 use PHPUnit\Framework\TestCase;
@@ -75,6 +76,20 @@ class UsuarioServiceTest extends TestCase
             }))
             ->willReturn($updated);
         $this->assertSame($updated, $this->service->update(1, ['nome' => 'Novo Nome']));
+    }
+
+    public function test_store_throws_unprocessable_for_invalid_email(): void
+    {
+        $this->expectException(UnprocessableEntity::class);
+        $this->service->store(['nome' => 'João', 'email' => 'not-an-email']);
+    }
+
+    public function test_update_throws_unprocessable_for_invalid_email(): void
+    {
+        $existing = $this->makeUsuario();
+        $this->repo->method('find')->with(1)->willReturn($existing);
+        $this->expectException(UnprocessableEntity::class);
+        $this->service->update(1, ['email' => 'not-an-email']);
     }
 
     public function test_destroy_delegates_to_repo(): void

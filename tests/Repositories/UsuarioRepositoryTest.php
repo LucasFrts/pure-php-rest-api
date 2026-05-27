@@ -4,6 +4,7 @@ namespace Tests\Repositories;
 
 use App\Entities\Usuario;
 use App\Exceptions\Http\NotFound;
+use App\Exceptions\Http\UnprocessableEntity;
 use App\Repositories\UsuarioRepository;
 use App\ValueObjects\Email;
 use PDO;
@@ -47,5 +48,12 @@ class UsuarioRepositoryTest extends TestCase
         $this->repo->destroy($u->getId());
         $this->expectException(NotFound::class);
         $this->repo->find($u->getId());
+    }
+
+    public function test_store_throws_unprocessable_for_duplicate_email(): void
+    {
+        $this->repo->store(new Usuario('João', new Email('joao@test.com')));
+        $this->expectException(UnprocessableEntity::class);
+        $this->repo->store(new Usuario('João 2', new Email('joao@test.com')));
     }
 }

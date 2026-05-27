@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Contracts\RequestInterface;
 use App\Contracts\ResponseInterface;
 use App\Contracts\Services\MatriculaServiceInterface;
 use App\Entities\Matricula;
-use App\Support\Container;
 
 class MatriculasController extends BaseController
 {
@@ -16,8 +14,7 @@ class MatriculasController extends BaseController
 
     public function store(): ResponseInterface
     {
-        $request   = Container::getContainer()->get(RequestInterface::class);
-        $data      = $request->getJSON();
+        $data      = $this->request()->getJSON();
         $matricula = $this->service->enroll((int) $data['usuario_id'], (int) $data['turma_id']);
         return $this->response()->created(['data' => $this->serialize($matricula)]);
     }

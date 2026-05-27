@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Contracts\RequestInterface;
 use App\Contracts\ResponseInterface;
 use App\Contracts\Services\UsuarioServiceInterface;
-use App\Support\Container;
 
 class UsuariosController extends BaseController
 {
@@ -15,8 +13,7 @@ class UsuariosController extends BaseController
 
     public function store(): ResponseInterface
     {
-        $request = Container::getContainer()->get(RequestInterface::class);
-        $data    = $request->getJSON();
+        $data    = $this->request()->getJSON();
         $usuario = $this->service->store($data);
         return $this->response()->created([
             'data' => [

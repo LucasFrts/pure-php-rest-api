@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Contracts\Repositories\UsuarioRepositoryInterface;
 use App\Entities\Usuario;
 use App\Exceptions\Http\NotFound;
+use App\Exceptions\Http\UnprocessableEntity;
 use App\ValueObjects\Email;
 
 class UsuarioRepository extends BaseRepository implements UsuarioRepositoryInterface
@@ -32,8 +33,15 @@ class UsuarioRepository extends BaseRepository implements UsuarioRepositoryInter
 
     public function store(Usuario $usuario): Usuario
     {
-        $stmt = $this->pdo->prepare('INSERT INTO usuarios (nome, email) VALUES (?, ?)');
-        $stmt->execute([$usuario->getNome(), $usuario->getEmail()->getValue()]);
+        try {
+            $stmt = $this->pdo->prepare('INSERT INTO usuarios (nome, email) VALUES (?, ?)');
+            $stmt->execute([$usuario->getNome(), $usuario->getEmail()->getValue()]);
+        } catch (\PDOException $e) {
+            if (str_starts_with((string) $e->getCode(), '23')) {
+                throw new UnprocessableEntity('Email já cadastrado');
+            }
+            throw $e;
+        }
 
         return $this->find((int) $this->pdo->lastInsertId());
     }
@@ -42,8 +50,15 @@ class UsuarioRepository extends BaseRepository implements UsuarioRepositoryInter
     {
         $this->find($id);
 
-        $stmt = $this->pdo->prepare('UPDATE usuarios SET nome = ?, email = ? WHERE id = ?');
-        $stmt->execute([$usuario->getNome(), $usuario->getEmail()->getValue(), $id]);
+        try {
+            $stmt = $this->pdo->prepare('UPDATE usuarios SET nome = ?, email = ? WHERE id = ?');
+            $stmt->execute([$usuario->getNome(), $usuario->getEmail()->getValue(), $id]);
+        } catch (\PDOException $e) {
+            if (str_starts_with((string) $e->getCode(), '23')) {
+                throw new UnprocessableEntity('Email já cadastrado');
+            }
+            throw $e;
+        }
 
         return $this->find($id);
     }

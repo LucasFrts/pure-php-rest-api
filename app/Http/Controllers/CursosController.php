@@ -1,11 +1,10 @@
 <?php
+
 namespace App\Http\Controllers;
 
-use App\Contracts\RequestInterface;
 use App\Contracts\ResponseInterface;
 use App\Contracts\Services\CursoServiceInterface;
 use App\Entities\Curso;
-use App\Support\Container;
 
 class CursosController extends BaseController
 {
@@ -15,10 +14,9 @@ class CursosController extends BaseController
 
     public function index(): ResponseInterface
     {
-        $request = Container::getContainer()->get(RequestInterface::class);
         $filters = array_filter([
-            'titulo' => $request->query('titulo'),
-            'tema'   => $request->query('tema'),
+            'titulo' => $this->request()->query('titulo'),
+            'tema'   => $this->request()->query('tema'),
         ]);
         $cursos = $this->service->getAvailable($filters);
         return $this->response()->success(['data' => array_map([$this, 'serializeCurso'], $cursos)]);
@@ -26,17 +24,15 @@ class CursosController extends BaseController
 
     public function store(): ResponseInterface
     {
-        $request = Container::getContainer()->get(RequestInterface::class);
-        $data    = $request->getJSON();
-        $curso   = $this->service->store($data);
+        $data  = $this->request()->getJSON();
+        $curso = $this->service->store($data);
         return $this->response()->created(['data' => $this->serializeCurso($curso)]);
     }
 
     public function update(int $id): ResponseInterface
     {
-        $request = Container::getContainer()->get(RequestInterface::class);
-        $data    = $request->getJSON();
-        $curso   = $this->service->update($id, $data);
+        $data  = $this->request()->getJSON();
+        $curso = $this->service->update($id, $data);
         return $this->response()->success(['data' => $this->serializeCurso($curso)]);
     }
 
