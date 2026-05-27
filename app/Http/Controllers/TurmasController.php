@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Contracts\ResponseInterface;
 use App\Contracts\Services\TurmaServiceInterface;
-use App\Entities\Turma;
 
 class TurmasController extends BaseController
 {
@@ -14,35 +13,19 @@ class TurmasController extends BaseController
 
     public function store(int $cursoId): ResponseInterface
     {
-        $data  = $this->request()->data();
-        $turma = $this->service->store($cursoId, $data);
-        return $this->response()->created(['data' => $this->serializeTurma($turma)]);
+        $turma = $this->service->store($cursoId, $this->request()->data());
+        return $this->response()->created(['data' => $turma]);
     }
 
     public function update(int $id): ResponseInterface
     {
-        $data  = $this->request()->data();
-        $turma = $this->service->update($id, $data);
-        return $this->response()->success(['data' => $this->serializeTurma($turma)]);
+        $turma = $this->service->update($id, $this->request()->data());
+        return $this->response()->success(['data' => $turma]);
     }
 
     public function destroy(int $id): ResponseInterface
     {
         $this->service->destroy($id);
         return $this->response()->noContent();
-    }
-
-    private function serializeTurma(Turma $turma): array
-    {
-        return [
-            'id'               => $turma->getId(),
-            'curso_id'         => $turma->getCursoId(),
-            'titulo'           => $turma->getTitulo(),
-            'descricao'        => $turma->getDescricao(),
-            'quantidade_vagas' => $turma->getQuantidadeVagas(),
-            'status'           => $turma->getStatus()->toString(),
-            'data_inicio'      => $turma->getDataInicio()->format('Y-m-d'),
-            'data_fim'         => $turma->getDataFim()->format('Y-m-d'),
-        ];
     }
 }

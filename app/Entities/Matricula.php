@@ -2,7 +2,9 @@
 
 namespace App\Entities;
 
-class Matricula
+use App\Contracts\EntityInterface;
+
+class Matricula implements EntityInterface
 {
     public function __construct(
         private int $usuarioId,
@@ -45,5 +47,16 @@ class Matricula
     public function setId(int $id): void
     {
         $this->id = $id;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id'         => $this->id,
+            'usuario_id' => $this->usuarioId,
+            'turma_id'   => $this->turmaId,
+            'curso_id'   => $this->cursoId,
+            'status'     => $this->status->toString(),
+        ];
     }
 }

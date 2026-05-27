@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Contracts\ResponseInterface;
 use App\Contracts\Services\CursoServiceInterface;
-use App\Entities\Curso;
 
 class CursosController extends BaseController
 {
@@ -18,38 +17,24 @@ class CursosController extends BaseController
             'titulo' => $this->request()->query('titulo'),
             'tema'   => $this->request()->query('tema'),
         ]);
-        $cursos = $this->service->getAvailable($filters);
-        return $this->response()->success(['data' => array_map([$this, 'serializeCurso'], $cursos)]);
+        return $this->response()->success(['data' => $this->service->getAvailable($filters)]);
     }
 
     public function store(): ResponseInterface
     {
-        $data  = $this->request()->data();
-        $curso = $this->service->store($data);
-        return $this->response()->created(['data' => $this->serializeCurso($curso)]);
+        $curso = $this->service->store($this->request()->data());
+        return $this->response()->created(['data' => $curso]);
     }
 
     public function update(int $id): ResponseInterface
     {
-        $data  = $this->request()->data();
-        $curso = $this->service->update($id, $data);
-        return $this->response()->success(['data' => $this->serializeCurso($curso)]);
+        $curso = $this->service->update($id, $this->request()->data());
+        return $this->response()->success(['data' => $curso]);
     }
 
     public function destroy(int $id): ResponseInterface
     {
         $this->service->destroy($id);
         return $this->response()->noContent();
-    }
-
-    private function serializeCurso(Curso $curso): array
-    {
-        return [
-            'id'         => $curso->getId(),
-            'titulo'     => $curso->getTitulo(),
-            'descricao'  => $curso->getDescricao(),
-            'tema'       => $curso->getTema()->toString(),
-            'url_imagem' => $curso->getUrlImagem(),
-        ];
     }
 }

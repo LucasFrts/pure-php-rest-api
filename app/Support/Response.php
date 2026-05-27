@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Contracts\EntityInterface;
 use App\Contracts\ResponseInterface;
 
 /**
@@ -59,8 +60,21 @@ class Response implements ResponseInterface
      */
     public function json(array $data): static
     {
-        $this->data = $data;
+        $this->data = array_map([$this, 'normalize'], $data);
         return $this;
+    }
+
+    private function normalize(mixed $value): mixed
+    {
+        if ($value instanceof EntityInterface) {
+            return $value->toArray();
+        }
+
+        if (is_array($value)) {
+            return array_map([$this, 'normalize'], $value);
+        }
+
+        return $value;
     }
 
     /**

@@ -2,7 +2,9 @@
 
 namespace App\Entities;
 
-class Curso
+use App\Contracts\EntityInterface;
+
+class Curso implements EntityInterface
 {
     public function __construct(
         private string $titulo,
@@ -40,5 +42,16 @@ class Curso
     public function setId(int $id): void
     {
         $this->id = $id;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id'         => $this->id,
+            'titulo'     => $this->titulo,
+            'descricao'  => $this->descrição,
+            'tema'       => $this->tema->toString(),
+            'url_imagem' => $this->urlImagem,
+        ];
     }
 }

@@ -2,9 +2,10 @@
 
 namespace App\Entities;
 
+use App\Contracts\EntityInterface;
 use App\ValueObjects\Email;
 
-class Usuario
+class Usuario implements EntityInterface
 {
     public function __construct(
         private string $nome,
@@ -30,5 +31,14 @@ class Usuario
     public function setId(int $id): void
     {
         $this->id = $id;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id'    => $this->id,
+            'nome'  => $this->nome,
+            'email' => $this->email->getValue(),
+        ];
     }
 }

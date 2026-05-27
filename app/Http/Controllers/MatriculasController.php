@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Contracts\ResponseInterface;
 use App\Contracts\Services\MatriculaServiceInterface;
-use App\Entities\Matricula;
 
 class MatriculasController extends BaseController
 {
@@ -16,29 +15,17 @@ class MatriculasController extends BaseController
     {
         $data      = $this->request()->data();
         $matricula = $this->service->enroll((int) $data['usuario_id'], (int) $data['turma_id']);
-        return $this->response()->created(['data' => $this->serialize($matricula)]);
+        return $this->response()->created(['data' => $matricula]);
     }
 
     public function index(int $usuarioId): ResponseInterface
     {
-        $matriculas = $this->service->getByUsuario($usuarioId);
-        return $this->response()->success(['data' => $matriculas]);
+        return $this->response()->success(['data' => $this->service->getByUsuario($usuarioId)]);
     }
 
     public function destroy(int $id): ResponseInterface
     {
         $this->service->destroy($id);
         return $this->response()->noContent();
-    }
-
-    private function serialize(Matricula $matricula): array
-    {
-        return [
-            'id'         => $matricula->getId(),
-            'usuario_id' => $matricula->getUsuarioId(),
-            'turma_id'   => $matricula->getTurmaId(),
-            'curso_id'   => $matricula->getCursoId(),
-            'status'     => $matricula->getStatus()->toString(),
-        ];
     }
 }

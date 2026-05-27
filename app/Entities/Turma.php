@@ -2,9 +2,10 @@
 
 namespace App\Entities;
 
+use App\Contracts\EntityInterface;
 use DateTime;
 
-class Turma
+class Turma implements EntityInterface
 {
     public function __construct(
         private string $titulo,
@@ -60,5 +61,19 @@ class Turma
     public function setId(int $id): void
     {
         $this->id = $id;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id'               => $this->id,
+            'curso_id'         => $this->cursoId,
+            'titulo'           => $this->titulo,
+            'descricao'        => $this->descrição,
+            'quantidade_vagas' => $this->quantidadeVagas,
+            'status'           => $this->status->toString(),
+            'data_inicio'      => $this->dataInicio->format('Y-m-d'),
+            'data_fim'         => $this->dataFim->format('Y-m-d'),
+        ];
     }
 }
