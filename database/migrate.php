@@ -40,6 +40,13 @@ if ($files === false) {
 }
 sort($files);
 
+$classMap = [
+    '001_create_usuarios'   => \Database\Migrations\CreateUsuarios::class,
+    '002_create_cursos'     => \Database\Migrations\CreateCursos::class,
+    '003_create_turmas'     => \Database\Migrations\CreateTurmas::class,
+    '004_create_matriculas' => \Database\Migrations\CreateMatriculas::class,
+];
+
 foreach ($files as $file) {
     $name = basename($file, '.php');
 
@@ -48,10 +55,14 @@ foreach ($files as $file) {
         continue;
     }
 
+    if (!isset($classMap[$name])) {
+        fwrite(STDERR, "[warn] no class mapping for {$name}, skipping\n");
+        continue;
+    }
+
     require_once $file;
 
-    $parts = explode('_', $name, 2);
-    $fqcn  = 'Database\\Migrations\\' . str_replace(' ', '', ucwords(str_replace('_', ' ', $parts[1] ?? $name)));
+    $fqcn = $classMap[$name];
 
     try {
         $migration = new $fqcn();
