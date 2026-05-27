@@ -6,11 +6,14 @@ use App\Contracts\Repositories\CursoRepositoryInterface;
 use App\Contracts\Services\CursoServiceInterface;
 use App\Entities\Curso;
 use App\Enums\Temas;
+use Psr\Log\LoggerInterface;
 
 class CursoService implements CursoServiceInterface
 {
-    public function __construct(private CursoRepositoryInterface $repo)
-    {
+    public function __construct(
+        private CursoRepositoryInterface $repo,
+        private LoggerInterface $logger
+    ) {
     }
 
     public function get(array $filters = []): array
@@ -34,10 +37,12 @@ class CursoService implements CursoServiceInterface
             $data['titulo'],
             $data['descricao'],
             Temas::fromString($data['tema']),
-            $data['imagem_url']
+            $data['url_imagem']
         );
 
-        return $this->repo->store($curso);
+        $result = $this->repo->store($curso);
+        $this->logger->info("CursoService::store cursoId={$result->getId()}");
+        return $result;
     }
 
     public function update(int $id, mixed $data): Curso
@@ -48,14 +53,17 @@ class CursoService implements CursoServiceInterface
             $data['titulo']     ?? $existing->getTitulo(),
             $data['descricao']  ?? $existing->getDescricao(),
             isset($data['tema']) ? Temas::fromString($data['tema']) : $existing->getTema(),
-            $data['imagem_url'] ?? $existing->getUrlImagem()
+            $data['url_imagem'] ?? $existing->getUrlImagem()
         );
 
-        return $this->repo->update($id, $curso);
+        $result = $this->repo->update($id, $curso);
+        $this->logger->info("CursoService::update cursoId={$id}");
+        return $result;
     }
 
     public function destroy(int $id): void
     {
         $this->repo->destroy($id);
+        $this->logger->info("CursoService::destroy cursoId={$id}");
     }
 }

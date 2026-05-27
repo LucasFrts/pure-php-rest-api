@@ -4,20 +4,23 @@ namespace Tests\Services;
 
 use App\Contracts\Repositories\CursoRepositoryInterface;
 use App\Entities\Curso;
-use App\Entities\Temas;
+use App\Enums\Temas;
 use App\Exceptions\Http\NotFound;
 use App\Services\CursoService;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 class CursoServiceTest extends TestCase
 {
     private CursoRepositoryInterface $repo;
+    private LoggerInterface $logger;
     private CursoService $service;
 
     protected function setUp(): void
     {
         $this->repo    = $this->createMock(CursoRepositoryInterface::class);
-        $this->service = new CursoService($this->repo);
+        $this->logger  = $this->createMock(LoggerInterface::class);
+        $this->service = new CursoService($this->repo, $this->logger);
     }
 
     private function makeCurso(int $id = 1): Curso
@@ -95,5 +98,36 @@ class CursoServiceTest extends TestCase
     {
         $this->repo->expects($this->once())->method('destroy')->with(1);
         $this->service->destroy(1);
+    }
+
+    public function test_store_logs_info_on_success(): void
+    {
+        $curso = $this->makeCurso(42);
+        $this->repo->method('store')->willReturn($curso);
+        $this->logger->expects($this->once())
+            ->method('info')
+            ->with($this->stringContains('CursoService::store cursoId=42'));
+        $this->service->store(['titulo' => 'PHP', 'descricao' => 'd', 'tema' => 'tecnologia', 'url_imagem' => 'i.jpg']);
+    }
+
+    public function test_update_logs_info_on_success(): void
+    {
+        $existing = $this->makeCurso(3);
+        $updated  = $this->makeCurso(3);
+        $this->repo->method('find')->willReturn($existing);
+        $this->repo->method('update')->willReturn($updated);
+        $this->logger->expects($this->once())
+            ->method('info')
+            ->with($this->stringContains('CursoService::update cursoId=3'));
+        $this->service->update(3, ['titulo' => 'Novo']);
+    }
+
+    public function test_destroy_logs_info_on_success(): void
+    {
+        $this->repo->method('destroy')->with(7);
+        $this->logger->expects($this->once())
+            ->method('info')
+            ->with($this->stringContains('CursoService::destroy cursoId=7'));
+        $this->service->destroy(7);
     }
 }
