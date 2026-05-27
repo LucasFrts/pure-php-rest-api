@@ -26,9 +26,9 @@ class Router
      * Registra uma rota para requisições GET.
      *
      * @param string $uri    URI exata (ex: '/users').
-     * @param string $action Controller e método no formato 'Controller@metodo'.
+     * @param array $action Controller e método no formato '[Controlller::cass, método]'.
      */
-    public function get(string $uri, string $action): self
+    public function get(string $uri, array $action): self
     {
         $this->add($uri, $action, 'GET');
         return $this;
@@ -38,9 +38,9 @@ class Router
      * Registra uma rota para requisições POST.
      *
      * @param string $uri    URI exata (ex: '/users').
-     * @param string $action Controller e método no formato 'Controller@metodo'.
+     * @param array $action Controller e método no formato '[Controlller::cass, método]'.
      */
-    public function post(string $uri, string $action): self
+    public function post(string $uri, array $action): self
     {
         $this->add($uri, $action, 'POST');
         return $this;
@@ -50,9 +50,9 @@ class Router
      * Registra uma rota para requisições PUT.
      *
      * @param string $uri    URI exata (ex: '/users/1').
-     * @param string $action Controller e método no formato 'Controller@metodo'.
+     * @param array $action Controller e método no formato '[Controlller::cass, método]'.
      */
-    public function put(string $uri, string $action): self
+    public function put(string $uri, array $action): self
     {
         $this->add($uri, $action, 'PUT');
         return $this;
@@ -62,9 +62,9 @@ class Router
      * Registra uma rota para requisições PATCH.
      *
      * @param string $uri    URI exata (ex: '/users/1').
-     * @param string $action Controller e método no formato 'Controller@metodo'.
+     * @param array $action Controller e método no formato '[Controlller::cass, método]'.
      */
-    public function patch(string $uri, string $action): self
+    public function patch(string $uri, array $action): self
     {
         $this->add($uri, $action, 'PATCH');
         return $this;
@@ -74,9 +74,9 @@ class Router
      * Registra uma rota para requisições DELETE.
      *
      * @param string $uri    URI exata (ex: '/users/1').
-     * @param string $action Controller e método no formato 'Controller@metodo'.
+     * @param array $action Controller e método no formato '[Controlller::cass, método]'.
      */
-    public function delete(string $uri, string $action): self
+    public function delete(string $uri, array $action): self
     {
         $this->add($uri, $action, 'DELETE');
         return $this;
@@ -98,12 +98,28 @@ class Router
     public function route(string $uri, string $method): array
     {
         foreach ($this->routes as $route) {
-            if ($route['uri'] === $uri && $route['method'] === strtoupper($method)) {
-                return $route;
+            $pattern = $this->toRegex($route['uri']);
+            if (preg_match($pattern, $uri, $matches) && $route['method'] === strtoupper($method)) {
+                $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
+                return array_merge($route, ['params' => $params]);
             }
         }
 
         throw new RouteNotFound();
+    }
+
+    private function toRegex(string $uri): string
+    {
+        $parts = preg_split('/(\{[a-zA-Z_][a-zA-Z0-9_]*\})/', $uri, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $pattern = '';
+        foreach ($parts as $part) {
+            if (preg_match('/^\{([a-zA-Z_][a-zA-Z0-9_]*)\}$/', $part, $m)) {
+                $pattern .= '(?P<' . $m[1] . '>[^/]+)';
+            } else {
+                $pattern .= preg_quote($part, '#');
+            }
+        }
+        return '#^' . $pattern . '$#';
     }
 
     public function prefix(string $prefix) : self
@@ -121,18 +137,19 @@ class Router
      * Armazena internamente a rota decompondo a action em controller e método.
      *
      * @param string $uri    URI da rota.
-     * @param string $action String no formato 'Controller@metodo'.
+     * @param array $action Controller e método no formato '[Controlller::cass, método]'.
      * @param string $method Método HTTP em maiúsculas.
      */
-    private function add(string $uri, string $action, string $method): void
+    private function add(string $uri, array $action, string $method): void
     {
         $uri = $this->withPrefix($uri);
-        [$controller, $controllerMethod] = explode('@', $action);
+        $this->prefix = null;
+        [$controller, $controllerAction] = $action;
         $this->routes[] = [
             'uri'        => $uri,
             'controller' => $controller,
             'method'     => $method,
-            'action'     => $controllerMethod,
+            'action'     => $controllerAction,
         ];
     }
 
