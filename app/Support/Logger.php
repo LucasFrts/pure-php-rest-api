@@ -34,7 +34,7 @@ class Logger extends AbstractLogger
         $logPath = $config->get('LOG_PATH', __DIR__ . '/../../storage/logs');
 
         $monolog = new MonoLogger('app');
-        $monolog->pushHandler(new RotatingFileHandler("{$logPath}/app.log", maxFiles: 0));
+        $monolog->pushHandler(new RotatingFileHandler("{$logPath}/app.log", maxFiles: 14));
 
         $this->driver = $monolog;
     }
@@ -43,7 +43,7 @@ class Logger extends AbstractLogger
      * Delega o registro da mensagem ao driver interno.
      *
      * Assinatura sem type hints em $level e $message para manter compatibilidade
-     * com psr/log ~1.0, que não declara tipos nesses parâmetros.
+     * com a interface PSR-3, que aceita mixed nesses parâmetros.
      *
      * @param mixed                $level   Nível do log (ex: 'info', 'error').
      * @param mixed                $message Mensagem a registrar.

@@ -63,6 +63,16 @@ class CursosIntegrationTest extends IntegrationTestCase
         $this->assertSame(404, $r->getStatusForTest());
     }
 
+    public function test_store_missing_fields_returns_422_with_missing_list(): void
+    {
+        $r = $this->dispatch('POST', '/api/v1/cursos', ['titulo' => 'Só título']);
+        $this->assertSame(422, $r->getStatusForTest());
+        $data = $r->getDataForTest();
+        $this->assertContains('descricao', $data['errors']['missing']);
+        $this->assertContains('tema', $data['errors']['missing']);
+        $this->assertContains('url_imagem', $data['errors']['missing']);
+    }
+
     public function test_destroy_nonexistent_returns_404(): void
     {
         $r = $this->dispatch('DELETE', '/api/v1/cursos/999');

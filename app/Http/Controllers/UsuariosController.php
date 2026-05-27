@@ -18,7 +18,10 @@ class UsuariosController extends BaseController
 
     public function store(): ResponseInterface
     {
-        $usuario = $this->service->store($this->request()->data());
+        $data = $this->request()->data();
+        $this->validator()->requireFields($data, ['nome', 'email']);
+
+        $usuario = $this->service->store($data);
         return $this->response()->created(['data' => $usuario]);
     }
 

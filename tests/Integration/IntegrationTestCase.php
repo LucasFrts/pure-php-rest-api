@@ -7,6 +7,7 @@ use App\Contracts\Repositories\MatriculaRepositoryInterface;
 use App\Contracts\Repositories\TurmaRepositoryInterface;
 use App\Contracts\Repositories\UsuarioRepositoryInterface;
 use App\Contracts\RequestInterface;
+use App\Contracts\RequestValidatorInterface;
 use App\Contracts\ResponseInterface;
 use App\Contracts\Services\CursoServiceInterface;
 use App\Contracts\Services\MatriculaServiceInterface;
@@ -26,6 +27,7 @@ use App\Services\UsuarioService;
 use App\Support\Container;
 use App\Support\Dispatcher;
 use App\Support\Request;
+use App\Support\RequestValidator;
 use App\Support\Response;
 use PDO;
 use PHPUnit\Framework\TestCase;
@@ -55,6 +57,7 @@ abstract class IntegrationTestCase extends TestCase
         $container->singleton(LoggerInterface::class, fn() => new NullLogger());
         $container->singleton(ResponseInterface::class, fn() => new Response());
         $container->singleton(RequestInterface::class, fn() => new Request());
+        $container->singleton(RequestValidatorInterface::class, fn() => new RequestValidator());
 
         $container->bind(
             CursoRepositoryInterface::class,
@@ -139,7 +142,15 @@ abstract class IntegrationTestCase extends TestCase
         } catch (NotFound $e) {
             return (new Response())->notFound(['error' => $e->getMessage()]);
         } catch (UnprocessableEntity $e) {
-            return (new Response())->unprocessable(['error' => $e->getMessage()]);
+            $payload = [
+                'status' => 422,
+                'title'  => 'Unprocessable Entity',
+                'detail' => $e->getMessage(),
+            ];
+            if ($e->getErrors() !== []) {
+                $payload['errors'] = $e->getErrors();
+            }
+            return (new Response())->unprocessable($payload);
         }
     }
 }

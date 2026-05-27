@@ -2,28 +2,19 @@
 
 namespace Tests\Http\Controllers;
 
-use App\Contracts\RequestInterface;
-use App\Contracts\ResponseInterface;
 use App\Contracts\Services\UsuarioServiceInterface;
 use App\Entities\Usuario;
 use App\Http\Controllers\UsuariosController;
-use App\Support\Container;
-use App\Support\Request;
-use App\Support\Response;
 use App\ValueObjects\Email;
-use PHPUnit\Framework\TestCase;
 
-class UsuariosControllerTest extends TestCase
+class UsuariosControllerTest extends ControllerTestCase
 {
     private UsuarioServiceInterface $service;
     private UsuariosController $controller;
 
     protected function setUp(): void
     {
-        $container = new Container();
-        $container->singleton(ResponseInterface::class, fn() => new Response());
-        $container->singleton(RequestInterface::class, fn() => new Request());
-        Container::setContainer($container);
+        parent::setUp();
 
         $this->service    = $this->createMock(UsuarioServiceInterface::class);
         $this->controller = new UsuariosController($this->service);
@@ -45,6 +36,7 @@ class UsuariosControllerTest extends TestCase
 
     public function test_store_returns_201(): void
     {
+        $this->withPostBody(['nome' => 'Alice', 'email' => 'alice@example.com']);
         $this->service->method('store')->willReturn($this->makeUsuario());
         $response = $this->controller->store();
         $this->assertSame(201, $response->getStatusForTest());

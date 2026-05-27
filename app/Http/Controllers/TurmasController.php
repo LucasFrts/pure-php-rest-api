@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Contracts\ResponseInterface;
 use App\Contracts\Services\TurmaServiceInterface;
+use App\Enums\StatusTurma;
 
 class TurmasController extends BaseController
 {
@@ -13,13 +14,38 @@ class TurmasController extends BaseController
 
     public function store(int $cursoId): ResponseInterface
     {
-        $turma = $this->service->store($cursoId, $this->request()->data());
+        $data = $this->request()->data();
+        $this->validator()->requireFields($data, [
+            'titulo',
+            'descricao',
+            'quantidade_vagas',
+            'status',
+            'data_inicio',
+            'data_fim',
+        ]);
+        $this->validator()->parseEnum('status', $data['status'], StatusTurma::fromString(...));
+        $this->validator()->parseDate('data_inicio', $data['data_inicio']);
+        $this->validator()->parseDate('data_fim', $data['data_fim']);
+
+        $turma = $this->service->store($cursoId, $data);
         return $this->response()->created(['data' => $turma]);
     }
 
     public function update(int $id): ResponseInterface
     {
-        $turma = $this->service->update($id, $this->request()->data());
+        $data = $this->request()->data();
+
+        if (isset($data['status'])) {
+            $this->validator()->parseEnum('status', $data['status'], StatusTurma::fromString(...));
+        }
+        if (isset($data['data_inicio'])) {
+            $this->validator()->parseDate('data_inicio', $data['data_inicio']);
+        }
+        if (isset($data['data_fim'])) {
+            $this->validator()->parseDate('data_fim', $data['data_fim']);
+        }
+
+        $turma = $this->service->update($id, $data);
         return $this->response()->success(['data' => $turma]);
     }
 

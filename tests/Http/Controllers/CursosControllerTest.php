@@ -1,28 +1,20 @@
 <?php
 namespace Tests\Http\Controllers;
 
-use App\Contracts\RequestInterface;
-use App\Contracts\ResponseInterface;
 use App\Contracts\Services\CursoServiceInterface;
 use App\Entities\Curso;
 use App\Enums\Temas;
+use App\Exceptions\Http\UnprocessableEntity;
 use App\Http\Controllers\CursosController;
-use App\Support\Container;
-use App\Support\Request;
-use App\Support\Response;
-use PHPUnit\Framework\TestCase;
 
-class CursosControllerTest extends TestCase
+class CursosControllerTest extends ControllerTestCase
 {
     private CursoServiceInterface $service;
     private CursosController $controller;
 
     protected function setUp(): void
     {
-        $container = new Container();
-        $container->singleton(ResponseInterface::class, fn() => new Response());
-        $container->singleton(RequestInterface::class, fn() => new Request());
-        Container::setContainer($container);
+        parent::setUp();
 
         $this->service    = $this->createMock(CursoServiceInterface::class);
         $this->controller = new CursosController($this->service);
@@ -44,13 +36,28 @@ class CursosControllerTest extends TestCase
 
     public function test_store_returns_201(): void
     {
+        $this->withPostBody([
+            'titulo'     => 'PHP',
+            'descricao'  => 'desc',
+            'tema'       => 'tecnologia',
+            'url_imagem' => 'img.jpg',
+        ]);
         $this->service->method('store')->willReturn($this->makeCurso());
         $response = $this->controller->store();
         $this->assertSame(201, $response->getStatusForTest());
     }
 
+    public function test_store_throws_when_required_fields_missing(): void
+    {
+        $this->withPostBody(['titulo' => 'PHP']);
+        $this->service->expects($this->never())->method('store');
+        $this->expectException(UnprocessableEntity::class);
+        $this->controller->store();
+    }
+
     public function test_update_returns_200(): void
     {
+        $this->withPostBody(['titulo' => 'Novo']);
         $this->service->method('update')->willReturn($this->makeCurso());
         $response = $this->controller->update(1);
         $this->assertSame(200, $response->getStatusForTest());

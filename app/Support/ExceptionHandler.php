@@ -5,6 +5,8 @@ namespace App\Support;
 use App\Contracts\ConfigInterface;
 use App\Contracts\HttpExceptionInterface;
 use App\Contracts\RuntimeExceptionInterface;
+use App\Exceptions\Http\UnprocessableEntity;
+use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
@@ -29,10 +31,13 @@ use Throwable;
 class ExceptionHandler
 {
     /**
-     * @param ConfigInterface $config Configurações da aplicação, usadas para verificar APP_ENV.
+     * @param ConfigInterface   $config Configurações da aplicação, usadas para verificar APP_ENV.
+     * @param LoggerInterface   $logger Logger PSR-3 para registrar erros tratados pela API.
      */
-    public function __construct(private ConfigInterface $config)
-    {
+    public function __construct(
+        private ConfigInterface $config,
+        private LoggerInterface $logger
+    ) {
     }
 
     /**
@@ -50,6 +55,9 @@ class ExceptionHandler
         if ($e instanceof RuntimeExceptionInterface) {
             $status = $e->getStatusCode();
             $detail = $this->isDebug() ? $e->getMessage() : 'Internal Server Error';
+        } elseif ($e instanceof \ValueError) {
+            $status = 422;
+            $detail = $e->getMessage();
         } elseif ($e instanceof HttpExceptionInterface) {
             $status = $e->getStatusCode();
             $detail = $e->getMessage();
@@ -58,13 +66,24 @@ class ExceptionHandler
             $detail = $this->isDebug() ? $e->getMessage() : 'Internal Server Error';
         }
 
-        http_response_code($status);
-        header('Content-Type: application/problem+json');
-        echo json_encode([
+        $body = [
             'status' => $status,
             'title'  => $this->titleFromStatus($status),
             'detail' => $detail,
-        ]);
+        ];
+
+        if ($e instanceof UnprocessableEntity && $e->getErrors() !== []) {
+            $body['errors'] = $e->getErrors();
+        }
+
+        $this->logException($e, $status);
+
+        if (!headers_sent()) {
+            http_response_code($status);
+            header('Content-Type: application/problem+json');
+        }
+
+        echo json_encode($body);
     }
 
     /**
@@ -76,6 +95,33 @@ class ExceptionHandler
     private function isDebug(): bool
     {
         return $this->config->get('APP_ENV', 'production') === 'local';
+    }
+
+    /**
+     * Registra a exceção no log com nível proporcional ao status HTTP.
+     * Erros 5xx incluem stack trace via contexto 'exception' (suportado pelo Monolog).
+     */
+    private function logException(Throwable $e, int $status): void
+    {
+        $context = [
+            'status'    => $status,
+            'exception' => $e,
+            'method'    => $_SERVER['REQUEST_METHOD'] ?? null,
+            'uri'       => $_SERVER['REQUEST_URI'] ?? null,
+        ];
+
+        if ($e instanceof UnprocessableEntity && $e->getErrors() !== []) {
+            $context['errors'] = $e->getErrors();
+        }
+
+        if ($status >= 500) {
+            $this->logger->error($e->getMessage(), $context);
+            return;
+        }
+
+        if ($status >= 400) {
+            $this->logger->warning($e->getMessage(), $context);
+        }
     }
 
     /**

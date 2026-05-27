@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Contracts\RequestInterface;
+use App\Contracts\RequestValidatorInterface;
 use App\Contracts\ResponseInterface;
 use App\Support\Container;
 
@@ -16,6 +17,11 @@ class BaseController
     public function request(): RequestInterface
     {
         return $this->getService(RequestInterface::class);
+    }
+
+    public function validator(): RequestValidatorInterface
+    {
+        return $this->getService(RequestValidatorInterface::class);
     }
 
     private function getService(string $serviceInterface) : mixed

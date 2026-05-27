@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Contracts\ResponseInterface;
 use App\Contracts\Services\CursoServiceInterface;
+use App\Enums\Temas;
 
 class CursosController extends BaseController
 {
@@ -22,13 +23,23 @@ class CursosController extends BaseController
 
     public function store(): ResponseInterface
     {
-        $curso = $this->service->store($this->request()->data());
+        $data = $this->request()->data();
+        $this->validator()->requireFields($data, ['titulo', 'descricao', 'tema', 'url_imagem']);
+        $this->validator()->parseEnum('tema', $data['tema'], Temas::fromString(...));
+
+        $curso = $this->service->store($data);
         return $this->response()->created(['data' => $curso]);
     }
 
     public function update(int $id): ResponseInterface
     {
-        $curso = $this->service->update($id, $this->request()->data());
+        $data = $this->request()->data();
+
+        if (isset($data['tema'])) {
+            $this->validator()->parseEnum('tema', $data['tema'], Temas::fromString(...));
+        }
+
+        $curso = $this->service->update($id, $data);
         return $this->response()->success(['data' => $curso]);
     }
 

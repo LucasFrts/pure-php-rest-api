@@ -9,22 +9,16 @@ use App\Entities\Matricula;
 use App\Enums\StatusMatricula;
 use App\Exceptions\Http\UnprocessableEntity;
 use App\Http\Controllers\MatriculasController;
-use App\Support\Container;
 use App\Support\Request;
-use App\Support\Response;
-use PHPUnit\Framework\TestCase;
 
-class MatriculasControllerTest extends TestCase
+class MatriculasControllerTest extends ControllerTestCase
 {
     private MatriculaServiceInterface $service;
     private MatriculasController $controller;
 
     protected function setUp(): void
     {
-        $container = new Container();
-        $container->singleton(ResponseInterface::class, fn() => new Response());
-        $container->singleton(RequestInterface::class, fn() => new Request());
-        Container::setContainer($container);
+        parent::setUp();
 
         $this->service    = $this->createMock(MatriculaServiceInterface::class);
         $this->controller = new MatriculasController($this->service);
@@ -32,9 +26,11 @@ class MatriculasControllerTest extends TestCase
 
     public function test_store_returns_201(): void
     {
+        $this->withPostBody(['usuario_id' => 1, 'turma_id' => 2]);
+
         $m = new Matricula(1, 2, 3);
         $m->setId(1);
-        $this->service->method('enroll')->willReturn($m);
+        $this->service->method('enroll')->with(1, 2)->willReturn($m);
         $response = $this->controller->store();
         $this->assertSame(201, $response->getStatusForTest());
     }
@@ -62,10 +58,8 @@ class MatriculasControllerTest extends TestCase
         // Use expects syntax to avoid the method() name collision
         $mockRequest->expects($this->atLeast(0))->method('data')->willReturn(['status' => 'inativo']);
 
-        $container = new Container();
-        $container->singleton(ResponseInterface::class, fn() => new Response());
-        $container->singleton(RequestInterface::class, fn() => $mockRequest);
-        Container::setContainer($container);
+        $this->container->forgetInstance(RequestInterface::class);
+        $this->container->singleton(RequestInterface::class, fn() => $mockRequest);
 
         $controller = new MatriculasController($this->service);
 
@@ -82,10 +76,8 @@ class MatriculasControllerTest extends TestCase
         $mockRequest = $this->createMock(RequestInterface::class);
         $mockRequest->expects($this->atLeast(0))->method('data')->willReturn([]);
 
-        $container = new Container();
-        $container->singleton(ResponseInterface::class, fn() => new Response());
-        $container->singleton(RequestInterface::class, fn() => $mockRequest);
-        Container::setContainer($container);
+        $this->container->forgetInstance(RequestInterface::class);
+        $this->container->singleton(RequestInterface::class, fn() => $mockRequest);
 
         $controller = new MatriculasController($this->service);
 

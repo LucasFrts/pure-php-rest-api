@@ -1,29 +1,20 @@
 <?php
 namespace Tests\Http\Controllers;
 
-use App\Contracts\RequestInterface;
-use App\Contracts\ResponseInterface;
 use App\Contracts\Services\TurmaServiceInterface;
 use App\Enums\StatusTurma;
 use App\Entities\Turma;
 use App\Http\Controllers\TurmasController;
-use App\Support\Container;
-use App\Support\Request;
-use App\Support\Response;
 use DateTime;
-use PHPUnit\Framework\TestCase;
 
-class TurmasControllerTest extends TestCase
+class TurmasControllerTest extends ControllerTestCase
 {
     private TurmaServiceInterface $service;
     private TurmasController $controller;
 
     protected function setUp(): void
     {
-        $container = new Container();
-        $container->singleton(ResponseInterface::class, fn() => new Response());
-        $container->singleton(RequestInterface::class, fn() => new Request());
-        Container::setContainer($container);
+        parent::setUp();
 
         $this->service    = $this->createMock(TurmaServiceInterface::class);
         $this->controller = new TurmasController($this->service);
@@ -39,6 +30,14 @@ class TurmasControllerTest extends TestCase
 
     public function test_store_returns_201(): void
     {
+        $this->withPostBody([
+            'titulo'           => 'T',
+            'descricao'        => 'desc',
+            'quantidade_vagas' => 30,
+            'status'           => 'disponivel',
+            'data_inicio'      => '2026-06-01',
+            'data_fim'         => '2026-12-01',
+        ]);
         $this->service->method('store')->willReturn($this->makeTurma());
         $response = $this->controller->store(1);
         $this->assertSame(201, $response->getStatusForTest());

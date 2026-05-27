@@ -8,6 +8,7 @@ use App\Contracts\Repositories\MatriculaRepositoryInterface;
 use App\Contracts\Repositories\TurmaRepositoryInterface;
 use App\Contracts\Repositories\UsuarioRepositoryInterface;
 use App\Contracts\RequestInterface;
+use App\Contracts\RequestValidatorInterface;
 use App\Contracts\ResponseInterface;
 use App\Contracts\Services\CursoServiceInterface;
 use App\Contracts\Services\MatriculaServiceInterface;
@@ -26,6 +27,7 @@ use App\Support\Container;
 use App\Support\ExceptionHandler;
 use App\Support\Logger;
 use App\Support\Request;
+use App\Support\RequestValidator;
 use App\Support\Response;
 use App\Support\ServiceProvider;
 use PDO;
@@ -47,7 +49,10 @@ class AppServiceProvider extends ServiceProvider
 
         $this->container->singleton(
             ExceptionHandler::class,
-            fn(Container $c) => new ExceptionHandler($c->get(ConfigInterface::class))
+            fn(Container $c) => new ExceptionHandler(
+                $c->get(ConfigInterface::class),
+                $c->get(LoggerInterface::class)
+            )
         );
 
         $this->container->singleton(
@@ -68,6 +73,16 @@ class AppServiceProvider extends ServiceProvider
         $this->container->singleton(
             Request::class,
             fn(Container $c) => $c->get(RequestInterface::class)
+        );
+
+        $this->container->singleton(
+            RequestValidatorInterface::class,
+            fn() => new RequestValidator()
+        );
+
+        $this->container->singleton(
+            RequestValidator::class,
+            fn(Container $c) => $c->get(RequestValidatorInterface::class)
         );
 
         $this->container->singleton(

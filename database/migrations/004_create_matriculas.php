@@ -14,7 +14,7 @@ class CreateMatriculas implements MigrationInterface
                 usuario_id INT NOT NULL,
                 turma_id   INT NOT NULL,
                 curso_id   INT NOT NULL,
-                status     ENUM('ativo','cancelado') NOT NULL DEFAULT 'ativo',
+                status     ENUM('ativo','inativo','cancelado') NOT NULL DEFAULT 'ativo',
                 UNIQUE KEY uq_matriculas_usuario_curso (usuario_id, curso_id),
                 CONSTRAINT fk_matriculas_usuario FOREIGN KEY (usuario_id)
                     REFERENCES usuarios(id) ON DELETE CASCADE,

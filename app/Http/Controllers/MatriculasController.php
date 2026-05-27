@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Contracts\ResponseInterface;
 use App\Contracts\Services\MatriculaServiceInterface;
-use App\Exceptions\Http\UnprocessableEntity;
-
 class MatriculasController extends BaseController
 {
     public function __construct(private MatriculaServiceInterface $service)
@@ -14,7 +12,10 @@ class MatriculasController extends BaseController
 
     public function store(): ResponseInterface
     {
-        $data      = $this->request()->data();
+        $data = $this->request()->data();
+        $this->validator()->requireFields($data, ['usuario_id', 'turma_id']);
+        $this->validator()->requireIntegers($data, ['usuario_id', 'turma_id']);
+
         $matricula = $this->service->enroll((int) $data['usuario_id'], (int) $data['turma_id']);
         return $this->response()->created(['data' => $matricula]);
     }
@@ -34,9 +35,7 @@ class MatriculasController extends BaseController
     {
         $data = $this->request()->data();
 
-        if (empty($data['status'])) {
-            throw new UnprocessableEntity('O campo status é obrigatório');
-        }
+        $this->validator()->requireFields($data, ['status']);
 
         $matricula = $this->service->updateStatus($id, $data['status']);
         return $this->response()->success(['data' => $matricula]);
