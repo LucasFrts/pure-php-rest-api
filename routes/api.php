@@ -26,3 +26,9 @@ $router->post('/matriculas', [MatriculasController::class, 'store']);
 $router->delete('/matriculas/{id}', [MatriculasController::class, 'destroy']);
 $router->patch('/matriculas/{id}/status', [MatriculasController::class, 'updateStatus']);
 $router->get('/usuarios/{id}/matriculas', [MatriculasController::class, 'index']);
+
+$router->get('/usuarios', [UsuariosController::class, 'index']);
+$router->get('/turmas', [TurmasController::class, 'index']);
+$router->get('/cursos/{cursoId}/turmas', [TurmasController::class, 'indexByCurso']);
+
+return $router;
