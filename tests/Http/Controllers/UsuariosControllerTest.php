@@ -29,11 +29,18 @@ class UsuariosControllerTest extends TestCase
         $this->controller = new UsuariosController($this->service);
     }
 
-    private function makeUsuario(): Usuario
+    private function makeUsuario(int $id = 1): Usuario
     {
-        $u = new Usuario('João', new Email('joao@test.com'));
-        $u->setId(1);
+        $u = new Usuario('Alice', new Email('alice@example.com'));
+        $u->setId($id);
         return $u;
+    }
+
+    public function test_index_returns_200_with_list(): void
+    {
+        $this->service->method('get')->willReturn([$this->makeUsuario()]);
+        $response = $this->controller->index();
+        $this->assertSame(200, $response->getStatusForTest());
     }
 
     public function test_store_returns_201(): void

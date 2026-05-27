@@ -11,6 +11,11 @@ class UsuariosController extends BaseController
     {
     }
 
+    public function index(): ResponseInterface
+    {
+        return $this->response()->success(['data' => $this->service->get()]);
+    }
+
     public function store(): ResponseInterface
     {
         $usuario = $this->service->store($this->request()->data());
