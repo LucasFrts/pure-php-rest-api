@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Contracts\Repositories\MatriculaRepositoryInterface;
 use App\Entities\Matricula;
 use App\Entities\StatusMatricula;
+use App\Exceptions\Http\NotFound;
 
 class MatriculaRepository extends BaseRepository implements MatriculaRepositoryInterface
 {
@@ -55,7 +56,7 @@ class MatriculaRepository extends BaseRepository implements MatriculaRepositoryI
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         if (!$row) {
-            throw new \App\Exceptions\Http\NotFound();
+            throw new NotFound("Matrícula {$id} não encontrada");
         }
 
         return $this->hydrate($row);
