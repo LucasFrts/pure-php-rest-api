@@ -3,7 +3,7 @@
 namespace App\Repositories;
 
 use App\Contracts\Repositories\TurmaRepositoryInterface;
-use App\Entities\StatusTurma;
+use App\Enums\StatusTurma;
 use App\Entities\Turma;
 use App\Exceptions\Http\NotFound;
 use DateTime;
@@ -12,8 +12,16 @@ class TurmaRepository extends BaseRepository implements TurmaRepositoryInterface
 {
     public function get(array $filters = []): array
     {
-        $stmt = $this->pdo->prepare('SELECT * FROM turmas');
-        $stmt->execute();
+        $sql    = 'SELECT * FROM turmas';
+        $params = [];
+
+        if (!empty($filters['curso_id'])) {
+            $sql    .= ' WHERE curso_id = ?';
+            $params[] = $filters['curso_id'];
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
 
         return array_map([$this, 'hydrate'], $stmt->fetchAll(\PDO::FETCH_ASSOC));
     }

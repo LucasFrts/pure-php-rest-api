@@ -2,7 +2,7 @@
 
 namespace Tests\Repositories;
 
-use App\Entities\StatusTurma;
+use App\Enums\StatusTurma;
 use App\Entities\Turma;
 use App\Exceptions\Http\NotFound;
 use App\Repositories\TurmaRepository;
@@ -94,6 +94,20 @@ class TurmaRepositoryTest extends TestCase
         $this->assertCount(2, $results);
         foreach ($results as $t) {
             $this->assertSame(1, $t->getCursoId());
+        }
+    }
+
+    public function test_get_filters_by_curso_id(): void
+    {
+        $this->repo->store($this->makeTurma(1));
+        $this->repo->store($this->makeTurma(1));
+        $this->repo->store($this->makeTurma(2));
+
+        $results = $this->repo->get(['curso_id' => 1]);
+
+        $this->assertCount(2, $results);
+        foreach ($results as $turma) {
+            $this->assertSame(1, $turma->getCursoId());
         }
     }
 }
