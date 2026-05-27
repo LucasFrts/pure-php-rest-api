@@ -1,0 +1,20 @@
+meta {
+  name: Update Curso
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{baseUrl}}{{apiPrefix}}/cursos/1
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "titulo": "Curso de Tecnologia Atualizado",
+    "descricao": "Descrição atualizada do curso",
+    "tema": "tecnologia",
+    "url_imagem": "https://example.com/tecnologia-v2.jpg"
+  }
+}

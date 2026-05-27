@@ -1,0 +1,20 @@
+meta {
+  name: Create Curso
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}{{apiPrefix}}/cursos
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "titulo": "Curso de Tecnologia",
+    "descricao": "Aprenda as principais tecnologias do mercado",
+    "tema": "tecnologia",
+    "url_imagem": "https://example.com/tecnologia.jpg"
+  }
+}

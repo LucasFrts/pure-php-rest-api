@@ -1,0 +1,16 @@
+meta {
+  name: List Cursos
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}{{apiPrefix}}/cursos
+  body: none
+  auth: none
+}
+
+params:query {
+  titulo:
+  tema:
+}
