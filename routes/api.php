@@ -1,10 +1,22 @@
 <?php
 
-use App\Support\Router;
+use App\Http\Controllers\CursosController;
+use App\Http\Controllers\MatriculasController;
+use App\Http\Controllers\TurmasController;
+use App\Http\Controllers\UsuariosController;
 
-$router = new Router;
-$router
-    ->prefix('/api/v1')
-    ->get('/turmas', 'TurmasController@index');
+$router->get('/cursos', [CursosController::class, 'index']);
+$router->post('/cursos', [CursosController::class, 'store']);
+$router->put('/cursos/{id}', [CursosController::class, 'update']);
+$router->delete('/cursos/{id}', [CursosController::class, 'destroy']);
 
-return $router;
+$router->post('/cursos/{cursoId}/turmas', [TurmasController::class, 'store']);
+$router->put('/turmas/{id}', [TurmasController::class, 'update']);
+$router->delete('/turmas/{id}', [TurmasController::class, 'destroy']);
+
+$router->post('/usuarios', [UsuariosController::class, 'store']);
+$router->delete('/usuarios/{id}', [UsuariosController::class, 'destroy']);
+
+$router->post('/matriculas', [MatriculasController::class, 'store']);
+$router->delete('/matriculas/{id}', [MatriculasController::class, 'destroy']);
+$router->get('/usuarios/{id}/matriculas', [MatriculasController::class, 'index']);
