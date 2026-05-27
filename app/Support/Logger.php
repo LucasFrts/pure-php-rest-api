@@ -3,7 +3,7 @@
 namespace App\Support;
 
 use App\Contracts\ConfigInterface;
-use Monolog\Handler\StreamHandler;
+use Monolog\Handler\RotatingFileHandler;
 use Monolog\Logger as MonoLogger;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
@@ -18,7 +18,8 @@ use Psr\Log\LoggerInterface;
  * alterar esta classe sem tocar em nada que usa LoggerInterface.
  *
  * O caminho do arquivo de log é lido da configuração via LOG_PATH,
- * com fallback para storage/logs dentro do projeto.
+ * com fallback para storage/logs dentro do projeto. Um novo arquivo
+ * é criado por dia (app-YYYY-MM-DD.log) via RotatingFileHandler.
  */
 class Logger extends AbstractLogger
 {
@@ -33,7 +34,7 @@ class Logger extends AbstractLogger
         $logPath = $config->get('LOG_PATH', __DIR__ . '/../../storage/logs');
 
         $monolog = new MonoLogger('app');
-        $monolog->pushHandler(new StreamHandler("{$logPath}/app.log"));
+        $monolog->pushHandler(new RotatingFileHandler("{$logPath}/app.log", maxFiles: 0));
 
         $this->driver = $monolog;
     }

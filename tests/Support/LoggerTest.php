@@ -21,11 +21,12 @@ class LoggerTest extends TestCase
 
     protected function tearDown(): void
     {
-        $logFile = "{$this->logPath}/app.log";
-        if (file_exists($logFile)) {
-            unlink($logFile);
+        foreach (glob("{$this->logPath}/app-*.log") as $file) {
+            unlink($file);
         }
-        rmdir($this->logPath);
+        if (is_dir($this->logPath)) {
+            rmdir($this->logPath);
+        }
     }
 
     public function test_implements_psr3_logger_interface(): void
@@ -42,16 +43,28 @@ class LoggerTest extends TestCase
 
         $logger->info('test message');
 
-        $logFile = "{$this->logPath}/app.log";
+        $today   = date('Y-m-d');
+        $logFile = "{$this->logPath}/app-{$today}.log";
         $this->assertFileExists($logFile);
         $this->assertStringContainsString('test message', file_get_contents($logFile));
+    }
+
+    public function test_log_file_name_contains_current_date(): void
+    {
+        $config = new Config(['LOG_PATH' => $this->logPath]);
+        $logger = new Logger($config);
+        $logger->info('date check');
+
+        $today = date('Y-m-d');
+        $files = glob("{$this->logPath}/app-*.log");
+        $this->assertCount(1, $files);
+        $this->assertStringContainsString($today, $files[0]);
     }
 
     public function test_uses_default_log_path_when_not_configured(): void
     {
         $config = new Config([]);
         $logger = new Logger($config);
-
         $this->assertInstanceOf(LoggerInterface::class, $logger);
     }
 }
