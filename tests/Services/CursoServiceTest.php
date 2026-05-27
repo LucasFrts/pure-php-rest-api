@@ -124,7 +124,7 @@ class CursoServiceTest extends TestCase
 
     public function test_destroy_logs_info_on_success(): void
     {
-        $this->repo->method('destroy')->with(7);
+        $this->repo->expects($this->once())->method('destroy')->with(7);
         $this->logger->expects($this->once())
             ->method('info')
             ->with($this->stringContains('CursoService::destroy cursoId=7'));
