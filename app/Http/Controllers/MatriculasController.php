@@ -28,4 +28,11 @@ class MatriculasController extends BaseController
         $this->service->destroy($id);
         return $this->response()->noContent();
     }
+
+    public function updateStatus(int $id): ResponseInterface
+    {
+        $data      = $this->request()->data();
+        $matricula = $this->service->updateStatus($id, $data['status']);
+        return $this->response()->success(['data' => $matricula]);
+    }
 }

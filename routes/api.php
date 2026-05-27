@@ -4,6 +4,11 @@ use App\Http\Controllers\CursosController;
 use App\Http\Controllers\MatriculasController;
 use App\Http\Controllers\TurmasController;
 use App\Http\Controllers\UsuariosController;
+use App\Support\Router;
+
+$router = new Router;
+
+$router->prefix('/api/v1');
 
 $router->get('/cursos', [CursosController::class, 'index']);
 $router->post('/cursos', [CursosController::class, 'store']);
@@ -19,4 +24,5 @@ $router->delete('/usuarios/{id}', [UsuariosController::class, 'destroy']);
 
 $router->post('/matriculas', [MatriculasController::class, 'store']);
 $router->delete('/matriculas/{id}', [MatriculasController::class, 'destroy']);
+$router->patch('/matriculas/{id}/status', [MatriculasController::class, 'updateStatus']);
 $router->get('/usuarios/{id}/matriculas', [MatriculasController::class, 'index']);
