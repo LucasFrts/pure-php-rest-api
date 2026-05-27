@@ -3,7 +3,7 @@
 namespace App\Contracts\Repositories;
 
 use App\Entities\Matricula;
-use App\Entities\StatusMatricula;
+use App\Enums\StatusMatricula;
 
 interface MatriculaRepositoryInterface
 {

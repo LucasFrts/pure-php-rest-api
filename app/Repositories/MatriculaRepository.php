@@ -4,7 +4,7 @@ namespace App\Repositories;
 
 use App\Contracts\Repositories\MatriculaRepositoryInterface;
 use App\Entities\Matricula;
-use App\Entities\StatusMatricula;
+use App\Enums\StatusMatricula;
 use App\Exceptions\Http\NotFound;
 
 class MatriculaRepository extends BaseRepository implements MatriculaRepositoryInterface

@@ -6,8 +6,8 @@ use App\Contracts\Repositories\MatriculaRepositoryInterface;
 use App\Contracts\Repositories\TurmaRepositoryInterface;
 use App\Contracts\Services\MatriculaServiceInterface;
 use App\Entities\Matricula;
-use App\Entities\StatusMatricula;
-use App\Entities\StatusTurma;
+use App\Enums\StatusMatricula;
+use App\Enums\StatusTurma;
 use App\Exceptions\Http\UnprocessableEntity;
 use DateTime;
 

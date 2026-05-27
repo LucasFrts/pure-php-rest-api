@@ -28,7 +28,9 @@ CREATE TABLE IF NOT EXISTS matriculas (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     usuario_id INTEGER NOT NULL,
     turma_id   INTEGER NOT NULL,
+    curso_id   INTEGER NOT NULL,
     status     TEXT    NOT NULL DEFAULT 'ativo',
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
-    FOREIGN KEY (turma_id)   REFERENCES turmas(id)
+    FOREIGN KEY (turma_id)   REFERENCES turmas(id),
+    FOREIGN KEY (curso_id)   REFERENCES cursos(id)
 );
