@@ -4,6 +4,7 @@ namespace Tests\Repositories;
 
 use App\Entities\Matricula;
 use App\Entities\StatusMatricula;
+use App\Exceptions\Http\NotFound;
 use App\Repositories\MatriculaRepository;
 use PDO;
 use PHPUnit\Framework\TestCase;
@@ -87,5 +88,45 @@ class MatriculaRepositoryTest extends TestCase
         $this->repo->store(new Matricula(1, 2, 1));
         $found = $this->repo->findByUsuarioAndCurso(1, 1);
         $this->assertSame(StatusMatricula::Ativo, $found->getStatus());
+    }
+
+    public function test_find_returns_matricula_by_id(): void
+    {
+        $stored = $this->repo->store(new Matricula(1, 2, 1));
+        $found  = $this->repo->find($stored->getId());
+        $this->assertSame($stored->getId(), $found->getId());
+        $this->assertSame(1, $found->getUsuarioId());
+    }
+
+    public function test_find_throws_not_found_for_unknown_id(): void
+    {
+        $this->expectException(NotFound::class);
+        $this->repo->find(999);
+    }
+
+    public function test_update_status_persists_new_status(): void
+    {
+        $stored   = $this->repo->store(new Matricula(1, 2, 1));
+        $updated  = $this->repo->updateStatus($stored->getId(), StatusMatricula::Inativo);
+        $this->assertSame(StatusMatricula::Inativo, $updated->getStatus());
+        $refetch = $this->repo->find($stored->getId());
+        $this->assertSame(StatusMatricula::Inativo, $refetch->getStatus());
+    }
+
+    public function test_inativar_by_turma_sets_all_to_inativo(): void
+    {
+        $this->pdo->exec("INSERT INTO cursos VALUES (2, 'JS', 'desc', 'tecnologia', 'img.jpg')");
+        $m1 = $this->repo->store(new Matricula(1, 5, 1));
+        $m2 = $this->repo->store(new Matricula(2, 5, 2));
+        $this->repo->inativarByTurma(5);
+        $this->assertSame(StatusMatricula::Inativo, $this->repo->find($m1->getId())->getStatus());
+        $this->assertSame(StatusMatricula::Inativo, $this->repo->find($m2->getId())->getStatus());
+    }
+
+    public function test_inativar_by_turma_does_not_affect_other_turmas(): void
+    {
+        $m = $this->repo->store(new Matricula(1, 10, 1));
+        $this->repo->inativarByTurma(99);
+        $this->assertSame(StatusMatricula::Ativo, $this->repo->find($m->getId())->getStatus());
     }
 }

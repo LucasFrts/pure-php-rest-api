@@ -48,6 +48,33 @@ class MatriculaRepository extends BaseRepository implements MatriculaRepositoryI
         return array_map([$this, 'hydrate'], $stmt->fetchAll(\PDO::FETCH_ASSOC));
     }
 
+    public function find(int $id): Matricula
+    {
+        $stmt = $this->pdo->prepare('SELECT * FROM matriculas WHERE id = ?');
+        $stmt->execute([$id]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if (!$row) {
+            throw new \App\Exceptions\Http\NotFound();
+        }
+
+        return $this->hydrate($row);
+    }
+
+    public function updateStatus(int $id, StatusMatricula $status): Matricula
+    {
+        $stmt = $this->pdo->prepare('UPDATE matriculas SET status = ? WHERE id = ?');
+        $stmt->execute([$status->toString(), $id]);
+
+        return $this->find($id);
+    }
+
+    public function inativarByTurma(int $turmaId): void
+    {
+        $stmt = $this->pdo->prepare('UPDATE matriculas SET status = ? WHERE turma_id = ?');
+        $stmt->execute([StatusMatricula::Inativo->toString(), $turmaId]);
+    }
+
     public function destroy(int $id): void
     {
         $stmt = $this->pdo->prepare('DELETE FROM matriculas WHERE id = ?');
