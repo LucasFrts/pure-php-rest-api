@@ -102,7 +102,10 @@ class AppServiceProvider extends ServiceProvider
 
         $this->container->bind(
             CursoServiceInterface::class,
-            fn(Container $c) => new CursoService($c->get(CursoRepositoryInterface::class))
+            fn(Container $c) => new CursoService(
+                $c->get(CursoRepositoryInterface::class),
+                $c->get(LoggerInterface::class)
+            )
         );
 
         $this->container->bind(
@@ -110,20 +113,25 @@ class AppServiceProvider extends ServiceProvider
             fn(Container $c) => new TurmaService(
                 $c->get(TurmaRepositoryInterface::class),
                 $c->get(CursoRepositoryInterface::class),
-                $c->get(MatriculaRepositoryInterface::class)
+                $c->get(MatriculaRepositoryInterface::class),
+                $c->get(LoggerInterface::class)
             )
         );
 
         $this->container->bind(
             UsuarioServiceInterface::class,
-            fn(Container $c) => new UsuarioService($c->get(UsuarioRepositoryInterface::class))
+            fn(Container $c) => new UsuarioService(
+                $c->get(UsuarioRepositoryInterface::class),
+                $c->get(LoggerInterface::class)
+            )
         );
 
         $this->container->bind(
             MatriculaServiceInterface::class,
             fn(Container $c) => new MatriculaService(
                 $c->get(MatriculaRepositoryInterface::class),
-                $c->get(TurmaRepositoryInterface::class)
+                $c->get(TurmaRepositoryInterface::class),
+                $c->get(LoggerInterface::class)
             )
         );
     }
