@@ -2,7 +2,7 @@
 
 namespace Tests\Entities;
 
-use App\Entities\Temas;
+use App\Enums\Temas;
 use PHPUnit\Framework\TestCase;
 
 class TemasTest extends TestCase

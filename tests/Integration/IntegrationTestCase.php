@@ -29,6 +29,8 @@ use App\Support\Request;
 use App\Support\Response;
 use PDO;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 abstract class IntegrationTestCase extends TestCase
 {
@@ -50,6 +52,7 @@ abstract class IntegrationTestCase extends TestCase
         $container = new Container();
 
         $container->singleton(PDO::class, fn() => $pdo);
+        $container->singleton(LoggerInterface::class, fn() => new NullLogger());
         $container->singleton(ResponseInterface::class, fn() => new Response());
         $container->singleton(RequestInterface::class, fn() => new Request());
 
@@ -71,25 +74,33 @@ abstract class IntegrationTestCase extends TestCase
         );
         $container->bind(
             CursoServiceInterface::class,
-            fn(Container $c) => new CursoService($c->get(CursoRepositoryInterface::class))
+            fn(Container $c) => new CursoService(
+                $c->get(CursoRepositoryInterface::class),
+                $c->get(LoggerInterface::class)
+            )
         );
         $container->bind(
             TurmaServiceInterface::class,
             fn(Container $c) => new TurmaService(
                 $c->get(TurmaRepositoryInterface::class),
                 $c->get(CursoRepositoryInterface::class),
-                $c->get(MatriculaRepositoryInterface::class)
+                $c->get(MatriculaRepositoryInterface::class),
+                $c->get(LoggerInterface::class)
             )
         );
         $container->bind(
             UsuarioServiceInterface::class,
-            fn(Container $c) => new UsuarioService($c->get(UsuarioRepositoryInterface::class))
+            fn(Container $c) => new UsuarioService(
+                $c->get(UsuarioRepositoryInterface::class),
+                $c->get(LoggerInterface::class)
+            )
         );
         $container->bind(
             MatriculaServiceInterface::class,
             fn(Container $c) => new MatriculaService(
                 $c->get(MatriculaRepositoryInterface::class),
-                $c->get(TurmaRepositoryInterface::class)
+                $c->get(TurmaRepositoryInterface::class),
+                $c->get(LoggerInterface::class)
             )
         );
 

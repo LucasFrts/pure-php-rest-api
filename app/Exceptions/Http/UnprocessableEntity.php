@@ -3,8 +3,9 @@
 namespace App\Exceptions\Http;
 
 use App\Contracts\HttpExceptionInterface;
+use RuntimeException;
 
-class UnprocessableEntity extends \RuntimeException implements HttpExceptionInterface
+class UnprocessableEntity extends RuntimeException implements HttpExceptionInterface
 {
     public function __construct(string $message = 'Unprocessable Entity')
     {

@@ -5,7 +5,7 @@ use App\Contracts\RequestInterface;
 use App\Contracts\ResponseInterface;
 use App\Contracts\Services\CursoServiceInterface;
 use App\Entities\Curso;
-use App\Entities\Temas;
+use App\Enums\Temas;
 use App\Http\Controllers\CursosController;
 use App\Support\Container;
 use App\Support\Request;

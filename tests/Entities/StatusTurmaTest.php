@@ -2,7 +2,7 @@
 
 namespace Tests\Entities;
 
-use App\Entities\StatusTurma;
+use App\Enums\StatusTurma;
 use PHPUnit\Framework\TestCase;
 
 class StatusTurmaTest extends TestCase

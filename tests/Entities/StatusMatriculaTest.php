@@ -2,7 +2,7 @@
 
 namespace Tests\Entities;
 
-use App\Entities\StatusMatricula;
+use App\Enums\StatusMatricula;
 use PHPUnit\Framework\TestCase;
 
 class StatusMatriculaTest extends TestCase

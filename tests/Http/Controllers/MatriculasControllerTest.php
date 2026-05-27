@@ -6,7 +6,7 @@ use App\Contracts\RequestInterface;
 use App\Contracts\ResponseInterface;
 use App\Contracts\Services\MatriculaServiceInterface;
 use App\Entities\Matricula;
-use App\Entities\StatusMatricula;
+use App\Enums\StatusMatricula;
 use App\Exceptions\Http\UnprocessableEntity;
 use App\Http\Controllers\MatriculasController;
 use App\Support\Container;

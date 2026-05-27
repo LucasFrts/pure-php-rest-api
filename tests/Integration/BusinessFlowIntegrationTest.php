@@ -11,7 +11,7 @@ class BusinessFlowIntegrationTest extends IntegrationTestCase
             'titulo'     => 'PHP Avançado',
             'descricao'  => 'Curso completo de PHP',
             'tema'       => 'tecnologia',
-            'imagem_url' => 'https://example.com/php.jpg',
+            'url_imagem' => 'https://example.com/php.jpg',
         ]);
         $this->assertSame(201, $r->getStatusForTest());
         $cursoId = $r->getDataForTest()['data']['id'];
@@ -69,10 +69,10 @@ class BusinessFlowIntegrationTest extends IntegrationTestCase
     {
         // Create 2 cursos, 1 turma each, 1 usuario — verify listings
         $this->dispatch('POST', '/api/v1/cursos', [
-            'titulo' => 'Curso A', 'descricao' => 'desc', 'tema' => 'tecnologia', 'imagem_url' => 'a.jpg',
+            'titulo' => 'Curso A', 'descricao' => 'desc', 'tema' => 'tecnologia', 'url_imagem' => 'a.jpg',
         ]);
         $rB = $this->dispatch('POST', '/api/v1/cursos', [
-            'titulo' => 'Curso B', 'descricao' => 'desc', 'tema' => 'tecnologia', 'imagem_url' => 'b.jpg',
+            'titulo' => 'Curso B', 'descricao' => 'desc', 'tema' => 'tecnologia', 'url_imagem' => 'b.jpg',
         ]);
         $cursoBId = $rB->getDataForTest()['data']['id'];
 

@@ -2,7 +2,7 @@
 
 namespace Tests\Entities;
 
-use App\Entities\StatusTurma;
+use App\Enums\StatusTurma;
 use App\Entities\Turma;
 use DateTime;
 use PHPUnit\Framework\TestCase;

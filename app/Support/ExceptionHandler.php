@@ -63,7 +63,7 @@ class ExceptionHandler
         echo json_encode([
             'status' => $status,
             'title'  => $this->titleFromStatus($status),
-            'detail' => $e->getMessage(),
+            'detail' => $detail,
         ]);
     }
 

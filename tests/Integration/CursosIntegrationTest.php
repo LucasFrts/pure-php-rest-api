@@ -10,7 +10,7 @@ class CursosIntegrationTest extends IntegrationTestCase
             'titulo'     => $titulo,
             'descricao'  => 'Aprenda PHP moderno',
             'tema'       => 'tecnologia',
-            'imagem_url' => 'https://example.com/img.jpg',
+            'url_imagem' => 'https://example.com/img.jpg',
         ];
     }
 

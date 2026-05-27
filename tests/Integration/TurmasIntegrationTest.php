@@ -13,7 +13,7 @@ class TurmasIntegrationTest extends IntegrationTestCase
             'titulo'     => 'Curso Base',
             'descricao'  => 'desc',
             'tema'       => 'tecnologia',
-            'imagem_url' => 'img.jpg',
+            'url_imagem' => 'img.jpg',
         ]);
         $this->cursoId = $r->getDataForTest()['data']['id'];
     }
@@ -57,7 +57,7 @@ class TurmasIntegrationTest extends IntegrationTestCase
             'titulo'     => 'Outro Curso',
             'descricao'  => 'desc',
             'tema'       => 'tecnologia',
-            'imagem_url' => 'img.jpg',
+            'url_imagem' => 'img.jpg',
         ]);
         $outroCursoId = $r2->getDataForTest()['data']['id'];
         $this->dispatch('POST', "/api/v1/cursos/{$outroCursoId}/turmas", array_merge($this->turmaPayload(), ['titulo' => 'Turma Outro']));

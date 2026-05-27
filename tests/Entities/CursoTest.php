@@ -3,7 +3,7 @@
 namespace Tests\Entities;
 
 use App\Entities\Curso;
-use App\Entities\Temas;
+use App\Enums\Temas;
 use PHPUnit\Framework\TestCase;
 
 class CursoTest extends TestCase

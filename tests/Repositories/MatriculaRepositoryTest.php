@@ -3,7 +3,7 @@
 namespace Tests\Repositories;
 
 use App\Entities\Matricula;
-use App\Entities\StatusMatricula;
+use App\Enums\StatusMatricula;
 use App\Exceptions\Http\NotFound;
 use App\Repositories\MatriculaRepository;
 use PDO;

@@ -15,7 +15,7 @@ class MatriculasIntegrationTest extends IntegrationTestCase
             'titulo'     => 'Curso',
             'descricao'  => 'desc',
             'tema'       => 'tecnologia',
-            'imagem_url' => 'img.jpg',
+            'url_imagem' => 'img.jpg',
         ]);
         $cursoId = $curso->getDataForTest()['data']['id'];
 

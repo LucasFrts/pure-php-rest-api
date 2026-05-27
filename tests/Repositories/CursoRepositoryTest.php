@@ -3,7 +3,7 @@
 namespace Tests\Repositories;
 
 use App\Entities\Curso;
-use App\Entities\Temas;
+use App\Enums\Temas;
 use App\Repositories\CursoRepository;
 use PDO;
 use PHPUnit\Framework\TestCase;
