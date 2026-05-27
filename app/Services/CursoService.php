@@ -42,11 +42,13 @@ class CursoService implements CursoServiceInterface
 
     public function update(int $id, mixed $data): Curso
     {
+        $existing = $this->repo->find($id);
+
         $curso = new Curso(
-            $data['titulo'],
-            $data['descricao'],
-            Temas::fromString($data['tema']),
-            $data['url_imagem']
+            $data['titulo']     ?? $existing->getTitulo(),
+            $data['descricao']  ?? $existing->getDescricao(),
+            isset($data['tema']) ? Temas::fromString($data['tema']) : $existing->getTema(),
+            $data['url_imagem'] ?? $existing->getUrlImagem()
         );
 
         return $this->repo->update($id, $curso);

@@ -3,6 +3,7 @@
 namespace Tests\Entities;
 
 use App\Entities\Matricula;
+use App\Entities\StatusMatricula;
 use PHPUnit\Framework\TestCase;
 
 class MatriculaTest extends TestCase
@@ -26,5 +27,24 @@ class MatriculaTest extends TestCase
         $this->assertSame(1, $m->getUsuarioId());
         $this->assertSame(2, $m->getTurmaId());
         $this->assertSame(3, $m->getCursoId());
+    }
+
+    public function test_status_defaults_to_ativo(): void
+    {
+        $m = new Matricula(1, 2, 3);
+        $this->assertSame(StatusMatricula::Ativo, $m->getStatus());
+    }
+
+    public function test_constructor_accepts_explicit_status(): void
+    {
+        $m = new Matricula(1, 2, 3, StatusMatricula::Cancelado);
+        $this->assertSame(StatusMatricula::Cancelado, $m->getStatus());
+    }
+
+    public function test_set_status(): void
+    {
+        $m = new Matricula(1, 2, 3);
+        $m->setStatus(StatusMatricula::Cancelado);
+        $this->assertSame(StatusMatricula::Cancelado, $m->getStatus());
     }
 }

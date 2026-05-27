@@ -7,6 +7,7 @@ use App\Contracts\Repositories\TurmaRepositoryInterface;
 use App\Contracts\Services\TurmaServiceInterface;
 use App\Entities\StatusTurma;
 use App\Entities\Turma;
+use DateTime;
 
 class TurmaService implements TurmaServiceInterface
 {
@@ -35,8 +36,8 @@ class TurmaService implements TurmaServiceInterface
             $data['descricao'],
             (int) $data['quantidade_vagas'],
             StatusTurma::fromString($data['status']),
-            new \DateTime($data['data_inicio']),
-            new \DateTime($data['data_fim']),
+            new DateTime($data['data_inicio']),
+            new DateTime($data['data_fim']),
             $cursoId
         );
 
@@ -48,12 +49,12 @@ class TurmaService implements TurmaServiceInterface
         $existing = $this->turmaRepo->find($id);
 
         $turma = new Turma(
-            $data['titulo'],
-            $data['descricao'],
-            (int) $data['quantidade_vagas'],
-            StatusTurma::fromString($data['status']),
-            new \DateTime($data['data_inicio']),
-            new \DateTime($data['data_fim']),
+            $data['titulo']           ?? $existing->getTitulo(),
+            $data['descricao']        ?? $existing->getDescricao(),
+            isset($data['quantidade_vagas']) ? (int) $data['quantidade_vagas'] : $existing->getQuantidadeVagas(),
+            isset($data['status']) ? StatusTurma::fromString($data['status']) : $existing->getStatus(),
+            isset($data['data_inicio']) ? new DateTime($data['data_inicio']) : $existing->getDataInicio(),
+            isset($data['data_fim'])    ? new DateTime($data['data_fim'])    : $existing->getDataFim(),
             $existing->getCursoId()
         );
 

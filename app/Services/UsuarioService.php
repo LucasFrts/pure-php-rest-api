@@ -32,7 +32,12 @@ class UsuarioService implements UsuarioServiceInterface
 
     public function update(int $id, mixed $data): Usuario
     {
-        $usuario = new Usuario($data['nome'], new Email($data['email']));
+        $existing = $this->repo->find($id);
+
+        $usuario = new Usuario(
+            $data['nome']  ?? $existing->getNome(),
+            isset($data['email']) ? new Email($data['email']) : $existing->getEmail()
+        );
 
         return $this->repo->update($id, $usuario);
     }

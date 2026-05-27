@@ -84,6 +84,23 @@ class TurmaServiceTest extends TestCase
         $this->assertSame($updated, $this->service->update(1, $data));
     }
 
+    public function test_update_partial_falls_back_to_existing_fields(): void
+    {
+        $existing = $this->makeTurma();
+        $updated  = $this->makeTurma();
+        $this->turmaRepo->method('find')->with(1)->willReturn($existing);
+        $this->turmaRepo->expects($this->once())->method('update')
+            ->with(1, $this->callback(function (Turma $t) use ($existing) {
+                return $t->getTitulo()          === 'Novo Titulo'
+                    && $t->getDescricao()       === $existing->getDescricao()
+                    && $t->getQuantidadeVagas() === $existing->getQuantidadeVagas()
+                    && $t->getStatus()          === $existing->getStatus()
+                    && $t->getCursoId()         === $existing->getCursoId();
+            }))
+            ->willReturn($updated);
+        $this->assertSame($updated, $this->service->update(1, ['titulo' => 'Novo Titulo']));
+    }
+
     public function test_destroy_delegates_to_repo(): void
     {
         $this->turmaRepo->expects($this->once())->method('destroy')->with(1);

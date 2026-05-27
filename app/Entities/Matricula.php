@@ -8,6 +8,7 @@ class Matricula
         private int $usuarioId,
         private int $turmaId,
         private int $cursoId,
+        private StatusMatricula $status = StatusMatricula::Ativo,
         private ?int $id = null
     ) {}
 
@@ -29,6 +30,16 @@ class Matricula
     public function getCursoId(): int
     {
         return $this->cursoId;
+    }
+
+    public function getStatus(): StatusMatricula
+    {
+        return $this->status;
+    }
+
+    public function setStatus(StatusMatricula $status): void
+    {
+        $this->status = $status;
     }
 
     public function setId(int $id): void

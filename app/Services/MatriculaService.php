@@ -43,4 +43,9 @@ class MatriculaService implements MatriculaServiceInterface
     {
         return $this->matriculaRepo->getByUsuario($usuarioId);
     }
+
+    public function destroy(int $id): void
+    {
+        $this->matriculaRepo->destroy($id);
+    }
 }

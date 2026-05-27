@@ -4,18 +4,20 @@ namespace App\Repositories;
 
 use App\Contracts\Repositories\MatriculaRepositoryInterface;
 use App\Entities\Matricula;
+use App\Entities\StatusMatricula;
 
 class MatriculaRepository extends BaseRepository implements MatriculaRepositoryInterface
 {
     public function store(Matricula $matricula): Matricula
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO matriculas (usuario_id, turma_id, curso_id) VALUES (?, ?, ?)'
+            'INSERT INTO matriculas (usuario_id, turma_id, curso_id, status) VALUES (?, ?, ?, ?)'
         );
         $stmt->execute([
             $matricula->getUsuarioId(),
             $matricula->getTurmaId(),
             $matricula->getCursoId(),
+            $matricula->getStatus()->toString(),
         ]);
 
         $matricula->setId((int) $this->pdo->lastInsertId());
@@ -57,7 +59,8 @@ class MatriculaRepository extends BaseRepository implements MatriculaRepositoryI
         $m = new Matricula(
             (int) $row['usuario_id'],
             (int) $row['turma_id'],
-            (int) $row['curso_id']
+            (int) $row['curso_id'],
+            StatusMatricula::fromString($row['status'])
         );
         $m->setId((int) $row['id']);
 

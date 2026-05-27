@@ -65,12 +65,30 @@ class CursoServiceTest extends TestCase
 
     public function test_update_delegates_to_repo(): void
     {
-        $data    = ['titulo' => 'New', 'descricao' => 'd', 'tema' => 'agro', 'url_imagem' => 'i.jpg'];
-        $updated = $this->makeCurso();
+        $data     = ['titulo' => 'New', 'descricao' => 'd', 'tema' => 'agro', 'url_imagem' => 'i.jpg'];
+        $existing = $this->makeCurso();
+        $updated  = $this->makeCurso();
+        $this->repo->expects($this->once())->method('find')->with(1)->willReturn($existing);
         $this->repo->expects($this->once())->method('update')
             ->with(1, $this->isInstanceOf(Curso::class))
             ->willReturn($updated);
         $this->assertSame($updated, $this->service->update(1, $data));
+    }
+
+    public function test_update_partial_falls_back_to_existing_fields(): void
+    {
+        $existing = $this->makeCurso();
+        $updated  = $this->makeCurso();
+        $this->repo->method('find')->with(1)->willReturn($existing);
+        $this->repo->expects($this->once())->method('update')
+            ->with(1, $this->callback(function (Curso $c) use ($existing) {
+                return $c->getTitulo()    === 'Novo Titulo'
+                    && $c->getDescricao() === $existing->getDescricao()
+                    && $c->getTema()      === $existing->getTema()
+                    && $c->getUrlImagem() === $existing->getUrlImagem();
+            }))
+            ->willReturn($updated);
+        $this->assertSame($updated, $this->service->update(1, ['titulo' => 'Novo Titulo']));
     }
 
     public function test_destroy_delegates_to_repo(): void

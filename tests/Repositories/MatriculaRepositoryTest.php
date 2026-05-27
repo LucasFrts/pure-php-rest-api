@@ -3,6 +3,7 @@
 namespace Tests\Repositories;
 
 use App\Entities\Matricula;
+use App\Entities\StatusMatricula;
 use App\Repositories\MatriculaRepository;
 use PDO;
 use PHPUnit\Framework\TestCase;
@@ -28,6 +29,7 @@ class MatriculaRepositoryTest extends TestCase
             usuario_id INTEGER NOT NULL,
             turma_id INTEGER NOT NULL,
             curso_id INTEGER NOT NULL,
+            status TEXT NOT NULL DEFAULT \'ativo\',
             UNIQUE(usuario_id, curso_id)
         )');
         $this->pdo->exec("INSERT INTO cursos VALUES (1, 'PHP', 'desc', 'tecnologia', 'img.jpg')");
@@ -71,5 +73,19 @@ class MatriculaRepositoryTest extends TestCase
         $m = $this->repo->store(new Matricula(1, 2, 1));
         $this->repo->destroy($m->getId());
         $this->assertNull($this->repo->findByUsuarioAndCurso(1, 1));
+    }
+
+    public function test_store_persists_status_and_hydrate_reads_it(): void
+    {
+        $m = $this->repo->store(new Matricula(1, 2, 1, StatusMatricula::Cancelado));
+        $found = $this->repo->findByUsuarioAndCurso(1, 1);
+        $this->assertSame(StatusMatricula::Cancelado, $found->getStatus());
+    }
+
+    public function test_store_defaults_status_to_ativo(): void
+    {
+        $this->repo->store(new Matricula(1, 2, 1));
+        $found = $this->repo->findByUsuarioAndCurso(1, 1);
+        $this->assertSame(StatusMatricula::Ativo, $found->getStatus());
     }
 }

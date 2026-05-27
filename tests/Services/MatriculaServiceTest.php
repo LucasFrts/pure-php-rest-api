@@ -106,4 +106,10 @@ class MatriculaServiceTest extends TestCase
         $this->matriculaRepo->method('getByUsuario')->with(1)->willReturn($expected);
         $this->assertSame($expected, $this->service->getByUsuario(1));
     }
+
+    public function test_destroy_delegates_to_repo(): void
+    {
+        $this->matriculaRepo->expects($this->once())->method('destroy')->with(5);
+        $this->service->destroy(5);
+    }
 }

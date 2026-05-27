@@ -51,6 +51,32 @@ class UsuarioServiceTest extends TestCase
         $this->service->find(99);
     }
 
+    public function test_update_delegates_to_repo(): void
+    {
+        $existing = $this->makeUsuario();
+        $updated  = $this->makeUsuario();
+        $data     = ['nome' => 'Maria', 'email' => 'maria@test.com'];
+        $this->repo->expects($this->once())->method('find')->with(1)->willReturn($existing);
+        $this->repo->expects($this->once())->method('update')
+            ->with(1, $this->isInstanceOf(Usuario::class))
+            ->willReturn($updated);
+        $this->assertSame($updated, $this->service->update(1, $data));
+    }
+
+    public function test_update_partial_falls_back_to_existing_fields(): void
+    {
+        $existing = $this->makeUsuario();
+        $updated  = $this->makeUsuario();
+        $this->repo->method('find')->with(1)->willReturn($existing);
+        $this->repo->expects($this->once())->method('update')
+            ->with(1, $this->callback(function (Usuario $u) use ($existing) {
+                return $u->getNome()  === 'Novo Nome'
+                    && $u->getEmail() === $existing->getEmail();
+            }))
+            ->willReturn($updated);
+        $this->assertSame($updated, $this->service->update(1, ['nome' => 'Novo Nome']));
+    }
+
     public function test_destroy_delegates_to_repo(): void
     {
         $this->repo->expects($this->once())->method('destroy')->with(1);
