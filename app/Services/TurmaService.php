@@ -69,12 +69,12 @@ class TurmaService implements TurmaServiceInterface
         );
 
         $updated = $this->turmaRepo->update($id, $turma);
-        $this->logger->info("TurmaService::update turmaId={$id}");
 
         if ($existing->getStatus() !== StatusTurma::Encerrado && $newStatus === StatusTurma::Encerrado) {
             $this->matriculaRepo->inativarByTurma($id);
         }
 
+        $this->logger->info("TurmaService::update turmaId={$id}");
         return $updated;
     }
 
