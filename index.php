@@ -12,7 +12,7 @@ $handler = $container->get(\App\Support\ExceptionHandler::class);
 try {
     $route = $router->route($path, $method);
     $dispatcher = new \App\Support\Dispatcher($container);
-    $dispatcher->dispatch($route);
+    $dispatcher->dispatch($route)?->send();
 } catch (\Throwable $e) {
     $handler->handle($e);
 }
