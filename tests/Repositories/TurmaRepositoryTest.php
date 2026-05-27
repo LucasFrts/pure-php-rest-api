@@ -32,22 +32,22 @@ class TurmaRepositoryTest extends TestCase
         $this->repo = new TurmaRepository($this->pdo);
     }
 
-    private function data(int $cursoId = 1): array
+    private function makeTurma(int $cursoId = 1): Turma
     {
-        return [
-            'curso_id'          => $cursoId,
-            'titulo'            => 'Turma A',
-            'descricao'         => 'Desc',
-            'quantidade_vagas'  => 30,
-            'status'            => 'disponivel',
-            'data_inicio'       => '2026-06-01',
-            'data_fim'          => '2026-12-01',
-        ];
+        return new Turma(
+            'Turma A',
+            'Desc',
+            30,
+            StatusTurma::Disponivel,
+            new DateTime('2026-06-01'),
+            new DateTime('2026-12-01'),
+            $cursoId
+        );
     }
 
     public function test_store_returns_turma_with_id(): void
     {
-        $turma = $this->repo->store($this->data());
+        $turma = $this->repo->store($this->makeTurma());
         $this->assertInstanceOf(Turma::class, $turma);
         $this->assertNotNull($turma->getId());
         $this->assertSame('Turma A', $turma->getTitulo());
@@ -56,7 +56,7 @@ class TurmaRepositoryTest extends TestCase
 
     public function test_find_returns_stored_turma(): void
     {
-        $stored = $this->repo->store($this->data());
+        $stored = $this->repo->store($this->makeTurma());
         $found  = $this->repo->find($stored->getId());
         $this->assertSame($stored->getId(), $found->getId());
     }
@@ -69,14 +69,17 @@ class TurmaRepositoryTest extends TestCase
 
     public function test_update_changes_status(): void
     {
-        $turma   = $this->repo->store($this->data());
-        $updated = $this->repo->update($turma->getId(), array_merge($this->data(), ['status' => 'encerrado']));
+        $turma   = $this->repo->store($this->makeTurma());
+        $updated = $this->repo->update(
+            $turma->getId(),
+            new Turma('Turma A', 'Desc', 30, StatusTurma::Encerrado, new DateTime('2026-06-01'), new DateTime('2026-12-01'), 1)
+        );
         $this->assertSame(StatusTurma::Encerrado, $updated->getStatus());
     }
 
     public function test_destroy_removes_record(): void
     {
-        $turma = $this->repo->store($this->data());
+        $turma = $this->repo->store($this->makeTurma());
         $this->repo->destroy($turma->getId());
         $this->expectException(NotFound::class);
         $this->repo->find($turma->getId());
@@ -84,9 +87,9 @@ class TurmaRepositoryTest extends TestCase
 
     public function test_find_by_curso_id_returns_matching_turmas(): void
     {
-        $this->repo->store($this->data(1));
-        $this->repo->store($this->data(1));
-        $this->repo->store($this->data(2));
+        $this->repo->store($this->makeTurma(1));
+        $this->repo->store($this->makeTurma(1));
+        $this->repo->store($this->makeTurma(2));
         $results = $this->repo->findByCursoId(1);
         $this->assertCount(2, $results);
         foreach ($results as $t) {

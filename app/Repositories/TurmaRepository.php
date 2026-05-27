@@ -31,26 +31,26 @@ class TurmaRepository extends BaseRepository implements TurmaRepositoryInterface
         return $this->hydrate($row);
     }
 
-    public function store(mixed $data): Turma
+    public function store(Turma $turma): Turma
     {
         $stmt = $this->pdo->prepare(
             'INSERT INTO turmas (curso_id, titulo, descricao, quantidade_vagas, status, data_inicio, data_fim)
              VALUES (?, ?, ?, ?, ?, ?, ?)'
         );
         $stmt->execute([
-            $data['curso_id'],
-            $data['titulo'],
-            $data['descricao'],
-            $data['quantidade_vagas'],
-            $data['status'],
-            $data['data_inicio'],
-            $data['data_fim'],
+            $turma->getCursoId(),
+            $turma->getTitulo(),
+            $turma->getDescricao(),
+            $turma->getQuantidadeVagas(),
+            $turma->getStatus()->toString(),
+            $turma->getDataInicio()->format('Y-m-d'),
+            $turma->getDataFim()->format('Y-m-d'),
         ]);
 
         return $this->find((int) $this->pdo->lastInsertId());
     }
 
-    public function update(int $id, mixed $data): Turma
+    public function update(int $id, Turma $turma): Turma
     {
         $this->find($id);
 
@@ -59,13 +59,13 @@ class TurmaRepository extends BaseRepository implements TurmaRepositoryInterface
              status = ?, data_inicio = ?, data_fim = ? WHERE id = ?'
         );
         $stmt->execute([
-            $data['curso_id'],
-            $data['titulo'],
-            $data['descricao'],
-            $data['quantidade_vagas'],
-            $data['status'],
-            $data['data_inicio'],
-            $data['data_fim'],
+            $turma->getCursoId(),
+            $turma->getTitulo(),
+            $turma->getDescricao(),
+            $turma->getQuantidadeVagas(),
+            $turma->getStatus()->toString(),
+            $turma->getDataInicio()->format('Y-m-d'),
+            $turma->getDataFim()->format('Y-m-d'),
             $id,
         ]);
 

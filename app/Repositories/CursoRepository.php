@@ -48,22 +48,22 @@ class CursoRepository extends BaseRepository implements CursoRepositoryInterface
         return $this->hydrate($row);
     }
 
-    public function store(mixed $data): Curso
+    public function store(Curso $curso): Curso
     {
         $stmt = $this->pdo->prepare(
             'INSERT INTO cursos (titulo, descricao, tema, url_imagem) VALUES (?, ?, ?, ?)'
         );
         $stmt->execute([
-            $data['titulo'],
-            $data['descricao'],
-            $data['tema'],
-            $data['url_imagem'],
+            $curso->getTitulo(),
+            $curso->getDescricao(),
+            $curso->getTema()->toString(),
+            $curso->getUrlImagem(),
         ]);
 
         return $this->find((int) $this->pdo->lastInsertId());
     }
 
-    public function update(int $id, mixed $data): Curso
+    public function update(int $id, Curso $curso): Curso
     {
         $this->find($id);
 
@@ -71,10 +71,10 @@ class CursoRepository extends BaseRepository implements CursoRepositoryInterface
             'UPDATE cursos SET titulo = ?, descricao = ?, tema = ?, url_imagem = ? WHERE id = ?'
         );
         $stmt->execute([
-            $data['titulo'],
-            $data['descricao'],
-            $data['tema'],
-            $data['url_imagem'],
+            $curso->getTitulo(),
+            $curso->getDescricao(),
+            $curso->getTema()->toString(),
+            $curso->getUrlImagem(),
             $id,
         ]);
 

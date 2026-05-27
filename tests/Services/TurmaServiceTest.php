@@ -49,6 +49,7 @@ class TurmaServiceTest extends TestCase
         $turma = $this->makeTurma();
         $this->turmaRepo->expects($this->once())
             ->method('store')
+            ->with($this->isInstanceOf(Turma::class))
             ->willReturn($turma);
 
         $result = $this->service->store(1, $data);
@@ -71,11 +72,15 @@ class TurmaServiceTest extends TestCase
 
     public function test_update_delegates_to_repo(): void
     {
+        $existing = $this->makeTurma();
+        $this->turmaRepo->method('find')->with(1)->willReturn($existing);
+
         $data    = ['titulo' => 'T2', 'descricao' => 'd', 'quantidade_vagas' => 5,
-                    'status' => 'encerrado', 'data_inicio' => '2026-06-01', 'data_fim' => '2026-12-01',
-                    'curso_id' => 1];
+                    'status' => 'encerrado', 'data_inicio' => '2026-06-01', 'data_fim' => '2026-12-01'];
         $updated = $this->makeTurma();
-        $this->turmaRepo->expects($this->once())->method('update')->with(1, $data)->willReturn($updated);
+        $this->turmaRepo->expects($this->once())->method('update')
+            ->with(1, $this->isInstanceOf(Turma::class))
+            ->willReturn($updated);
         $this->assertSame($updated, $this->service->update(1, $data));
     }
 

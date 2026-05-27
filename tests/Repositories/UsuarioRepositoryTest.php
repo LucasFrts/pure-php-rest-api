@@ -28,7 +28,7 @@ class UsuarioRepositoryTest extends TestCase
 
     public function test_store_returns_usuario_with_id(): void
     {
-        $u = $this->repo->store(['nome' => 'João', 'email' => 'joao@test.com']);
+        $u = $this->repo->store(new Usuario('João', new Email('joao@test.com')));
         $this->assertInstanceOf(Usuario::class, $u);
         $this->assertNotNull($u->getId());
         $this->assertSame('João', $u->getNome());
@@ -43,7 +43,7 @@ class UsuarioRepositoryTest extends TestCase
 
     public function test_destroy_removes_record(): void
     {
-        $u = $this->repo->store(['nome' => 'Ana', 'email' => 'ana@test.com']);
+        $u = $this->repo->store(new Usuario('Ana', new Email('ana@test.com')));
         $this->repo->destroy($u->getId());
         $this->expectException(NotFound::class);
         $this->repo->find($u->getId());

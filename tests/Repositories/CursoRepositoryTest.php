@@ -39,12 +39,7 @@ class CursoRepositoryTest extends TestCase
 
     public function test_store_returns_curso_with_id(): void
     {
-        $curso = $this->repo->store([
-            'titulo'     => 'PHP Avançado',
-            'descricao'  => 'Aprenda PHP',
-            'tema'       => 'tecnologia',
-            'url_imagem' => 'https://img.jpg',
-        ]);
+        $curso = $this->repo->store(new Curso('PHP Avançado', 'Aprenda PHP', Temas::Tecnologia, 'https://img.jpg'));
         $this->assertInstanceOf(Curso::class, $curso);
         $this->assertNotNull($curso->getId());
         $this->assertSame('PHP Avançado', $curso->getTitulo());
@@ -53,10 +48,7 @@ class CursoRepositoryTest extends TestCase
 
     public function test_find_returns_stored_curso(): void
     {
-        $stored = $this->repo->store([
-            'titulo' => 'Marketing Digital', 'descricao' => 'desc',
-            'tema' => 'marketing', 'url_imagem' => 'img.jpg',
-        ]);
+        $stored = $this->repo->store(new Curso('Marketing Digital', 'desc', Temas::Marketing, 'img.jpg'));
         $found = $this->repo->find($stored->getId());
         $this->assertSame($stored->getId(), $found->getId());
         $this->assertSame('Marketing Digital', $found->getTitulo());
@@ -70,24 +62,15 @@ class CursoRepositoryTest extends TestCase
 
     public function test_update_changes_fields(): void
     {
-        $curso = $this->repo->store([
-            'titulo' => 'Antigo', 'descricao' => 'desc',
-            'tema' => 'agro', 'url_imagem' => 'img.jpg',
-        ]);
-        $updated = $this->repo->update($curso->getId(), [
-            'titulo' => 'Novo', 'descricao' => 'nova desc',
-            'tema' => 'inovacao', 'url_imagem' => 'new.jpg',
-        ]);
+        $curso = $this->repo->store(new Curso('Antigo', 'desc', Temas::Agro, 'img.jpg'));
+        $updated = $this->repo->update($curso->getId(), new Curso('Novo', 'nova desc', Temas::Inovacao, 'new.jpg'));
         $this->assertSame('Novo', $updated->getTitulo());
         $this->assertSame(Temas::Inovacao, $updated->getTema());
     }
 
     public function test_destroy_removes_record(): void
     {
-        $curso = $this->repo->store([
-            'titulo' => 'Delete Me', 'descricao' => 'desc',
-            'tema' => 'agro', 'url_imagem' => 'img.jpg',
-        ]);
+        $curso = $this->repo->store(new Curso('Delete Me', 'desc', Temas::Agro, 'img.jpg'));
         $this->repo->destroy($curso->getId());
         $this->expectException(\App\Exceptions\Http\NotFound::class);
         $this->repo->find($curso->getId());
@@ -95,10 +78,7 @@ class CursoRepositoryTest extends TestCase
 
     public function test_get_with_available_turmas_returns_matching_cursos(): void
     {
-        $curso = $this->repo->store([
-            'titulo' => 'Agro Futuro', 'descricao' => 'desc',
-            'tema' => 'agro', 'url_imagem' => 'img.jpg',
-        ]);
+        $curso = $this->repo->store(new Curso('Agro Futuro', 'desc', Temas::Agro, 'img.jpg'));
         $past  = date('Y-m-d', strtotime('-10 days'));
         $future = date('Y-m-d', strtotime('+10 days'));
         $this->pdo->exec("INSERT INTO turmas VALUES (
@@ -111,8 +91,8 @@ class CursoRepositoryTest extends TestCase
 
     public function test_get_with_available_turmas_filters_by_titulo(): void
     {
-        $c1 = $this->repo->store(['titulo' => 'PHP Dev', 'descricao' => 'd', 'tema' => 'tecnologia', 'url_imagem' => 'i.jpg']);
-        $c2 = $this->repo->store(['titulo' => 'Marketing Pro', 'descricao' => 'd', 'tema' => 'marketing', 'url_imagem' => 'i.jpg']);
+        $c1 = $this->repo->store(new Curso('PHP Dev', 'd', Temas::Tecnologia, 'i.jpg'));
+        $c2 = $this->repo->store(new Curso('Marketing Pro', 'd', Temas::Marketing, 'i.jpg'));
         $past = date('Y-m-d', strtotime('-10 days'));
         $future = date('Y-m-d', strtotime('+10 days'));
         $this->pdo->exec("INSERT INTO turmas VALUES (NULL, {$c1->getId()}, 'T', 'd', 10, 'disponivel', '{$past}', '{$future}')");
@@ -125,8 +105,8 @@ class CursoRepositoryTest extends TestCase
 
     public function test_get_with_available_turmas_filters_by_tema(): void
     {
-        $c1 = $this->repo->store(['titulo' => 'A', 'descricao' => 'd', 'tema' => 'tecnologia', 'url_imagem' => 'i.jpg']);
-        $c2 = $this->repo->store(['titulo' => 'B', 'descricao' => 'd', 'tema' => 'agro', 'url_imagem' => 'i.jpg']);
+        $c1 = $this->repo->store(new Curso('A', 'd', Temas::Tecnologia, 'i.jpg'));
+        $c2 = $this->repo->store(new Curso('B', 'd', Temas::Agro, 'i.jpg'));
         $past = date('Y-m-d', strtotime('-10 days'));
         $future = date('Y-m-d', strtotime('+10 days'));
         $this->pdo->exec("INSERT INTO turmas VALUES (NULL, {$c1->getId()}, 'T', 'd', 10, 'disponivel', '{$past}', '{$future}')");

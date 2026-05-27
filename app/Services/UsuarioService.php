@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Contracts\Repositories\UsuarioRepositoryInterface;
 use App\Contracts\Services\UsuarioServiceInterface;
 use App\Entities\Usuario;
+use App\ValueObjects\Email;
 
 class UsuarioService implements UsuarioServiceInterface
 {
@@ -24,12 +25,16 @@ class UsuarioService implements UsuarioServiceInterface
 
     public function store(mixed $data): Usuario
     {
-        return $this->repo->store($data);
+        $usuario = new Usuario($data['nome'], new Email($data['email']));
+
+        return $this->repo->store($usuario);
     }
 
     public function update(int $id, mixed $data): Usuario
     {
-        return $this->repo->update($id, $data);
+        $usuario = new Usuario($data['nome'], new Email($data['email']));
+
+        return $this->repo->update($id, $usuario);
     }
 
     public function destroy(int $id): void

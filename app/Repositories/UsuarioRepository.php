@@ -30,20 +30,20 @@ class UsuarioRepository extends BaseRepository implements UsuarioRepositoryInter
         return $this->hydrate($row);
     }
 
-    public function store(mixed $data): Usuario
+    public function store(Usuario $usuario): Usuario
     {
         $stmt = $this->pdo->prepare('INSERT INTO usuarios (nome, email) VALUES (?, ?)');
-        $stmt->execute([$data['nome'], $data['email']]);
+        $stmt->execute([$usuario->getNome(), $usuario->getEmail()->getValue()]);
 
         return $this->find((int) $this->pdo->lastInsertId());
     }
 
-    public function update(int $id, mixed $data): Usuario
+    public function update(int $id, Usuario $usuario): Usuario
     {
         $this->find($id);
 
         $stmt = $this->pdo->prepare('UPDATE usuarios SET nome = ?, email = ? WHERE id = ?');
-        $stmt->execute([$data['nome'], $data['email'], $id]);
+        $stmt->execute([$usuario->getNome(), $usuario->getEmail()->getValue(), $id]);
 
         return $this->find($id);
     }

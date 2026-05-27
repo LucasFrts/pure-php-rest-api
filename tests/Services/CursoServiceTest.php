@@ -57,7 +57,9 @@ class CursoServiceTest extends TestCase
     {
         $data  = ['titulo' => 'PHP', 'descricao' => 'd', 'tema' => 'tecnologia', 'url_imagem' => 'i.jpg'];
         $curso = $this->makeCurso();
-        $this->repo->expects($this->once())->method('store')->with($data)->willReturn($curso);
+        $this->repo->expects($this->once())->method('store')
+            ->with($this->isInstanceOf(Curso::class))
+            ->willReturn($curso);
         $this->assertSame($curso, $this->service->store($data));
     }
 
@@ -65,7 +67,9 @@ class CursoServiceTest extends TestCase
     {
         $data    = ['titulo' => 'New', 'descricao' => 'd', 'tema' => 'agro', 'url_imagem' => 'i.jpg'];
         $updated = $this->makeCurso();
-        $this->repo->expects($this->once())->method('update')->with(1, $data)->willReturn($updated);
+        $this->repo->expects($this->once())->method('update')
+            ->with(1, $this->isInstanceOf(Curso::class))
+            ->willReturn($updated);
         $this->assertSame($updated, $this->service->update(1, $data));
     }
 

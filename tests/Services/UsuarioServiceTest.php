@@ -31,7 +31,9 @@ class UsuarioServiceTest extends TestCase
     {
         $data    = ['nome' => 'João', 'email' => 'joao@test.com'];
         $usuario = $this->makeUsuario();
-        $this->repo->expects($this->once())->method('store')->with($data)->willReturn($usuario);
+        $this->repo->expects($this->once())->method('store')
+            ->with($this->isInstanceOf(Usuario::class))
+            ->willReturn($usuario);
         $this->assertSame($usuario, $this->service->store($data));
     }
 

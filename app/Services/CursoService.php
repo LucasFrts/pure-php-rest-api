@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Contracts\Repositories\CursoRepositoryInterface;
 use App\Contracts\Services\CursoServiceInterface;
 use App\Entities\Curso;
+use App\Entities\Temas;
 
 class CursoService implements CursoServiceInterface
 {
@@ -29,12 +30,26 @@ class CursoService implements CursoServiceInterface
 
     public function store(mixed $data): Curso
     {
-        return $this->repo->store($data);
+        $curso = new Curso(
+            $data['titulo'],
+            $data['descricao'],
+            Temas::fromString($data['tema']),
+            $data['url_imagem']
+        );
+
+        return $this->repo->store($curso);
     }
 
     public function update(int $id, mixed $data): Curso
     {
-        return $this->repo->update($id, $data);
+        $curso = new Curso(
+            $data['titulo'],
+            $data['descricao'],
+            Temas::fromString($data['tema']),
+            $data['url_imagem']
+        );
+
+        return $this->repo->update($id, $curso);
     }
 
     public function destroy(int $id): void
