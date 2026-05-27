@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Contracts\ResponseInterface;
 use App\Contracts\Services\MatriculaServiceInterface;
+use App\Exceptions\Http\UnprocessableEntity;
 
 class MatriculasController extends BaseController
 {
@@ -31,7 +32,12 @@ class MatriculasController extends BaseController
 
     public function updateStatus(int $id): ResponseInterface
     {
-        $data      = $this->request()->data();
+        $data = $this->request()->data();
+
+        if (empty($data['status'])) {
+            throw new UnprocessableEntity('O campo status é obrigatório');
+        }
+
         $matricula = $this->service->updateStatus($id, $data['status']);
         return $this->response()->success(['data' => $matricula]);
     }

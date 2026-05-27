@@ -7,6 +7,7 @@ use App\Contracts\ResponseInterface;
 use App\Contracts\Services\MatriculaServiceInterface;
 use App\Entities\Matricula;
 use App\Entities\StatusMatricula;
+use App\Exceptions\Http\UnprocessableEntity;
 use App\Http\Controllers\MatriculasController;
 use App\Support\Container;
 use App\Support\Request;
@@ -72,5 +73,22 @@ class MatriculasControllerTest extends TestCase
 
         $response = $controller->updateStatus(1);
         $this->assertSame(200, $response->getStatusForTest());
+    }
+
+    public function test_update_status_throws_when_status_missing(): void
+    {
+        $this->expectException(UnprocessableEntity::class);
+
+        $mockRequest = $this->createMock(RequestInterface::class);
+        $mockRequest->expects($this->atLeast(0))->method('data')->willReturn([]);
+
+        $container = new Container();
+        $container->singleton(ResponseInterface::class, fn() => new Response());
+        $container->singleton(RequestInterface::class, fn() => $mockRequest);
+        Container::setContainer($container);
+
+        $controller = new MatriculasController($this->service);
+
+        $controller->updateStatus(1);
     }
 }
