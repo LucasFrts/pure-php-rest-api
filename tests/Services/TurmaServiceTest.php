@@ -3,6 +3,7 @@
 namespace Tests\Services;
 
 use App\Contracts\Repositories\CursoRepositoryInterface;
+use App\Contracts\Repositories\MatriculaRepositoryInterface;
 use App\Contracts\Repositories\TurmaRepositoryInterface;
 use App\Entities\Curso;
 use App\Entities\StatusTurma;
@@ -17,13 +18,15 @@ class TurmaServiceTest extends TestCase
 {
     private TurmaRepositoryInterface $turmaRepo;
     private CursoRepositoryInterface $cursoRepo;
+    private MatriculaRepositoryInterface $matriculaRepo;
     private TurmaService $service;
 
     protected function setUp(): void
     {
-        $this->turmaRepo = $this->createMock(TurmaRepositoryInterface::class);
-        $this->cursoRepo = $this->createMock(CursoRepositoryInterface::class);
-        $this->service   = new TurmaService($this->turmaRepo, $this->cursoRepo);
+        $this->turmaRepo     = $this->createMock(TurmaRepositoryInterface::class);
+        $this->cursoRepo     = $this->createMock(CursoRepositoryInterface::class);
+        $this->matriculaRepo = $this->createMock(MatriculaRepositoryInterface::class);
+        $this->service       = new TurmaService($this->turmaRepo, $this->cursoRepo, $this->matriculaRepo);
     }
 
     private function makeTurma(int $id = 1, int $cursoId = 1): Turma
@@ -105,5 +108,37 @@ class TurmaServiceTest extends TestCase
     {
         $this->turmaRepo->expects($this->once())->method('destroy')->with(1);
         $this->service->destroy(1);
+    }
+
+    public function test_update_calls_inativar_by_turma_when_transitioning_to_encerrado(): void
+    {
+        $existing = $this->makeTurma(id: 1);
+        $this->turmaRepo->method('find')->with(1)->willReturn($existing);
+
+        $encerrada = new Turma('T', 'desc', 30, StatusTurma::Encerrado,
+            new DateTime('2026-06-01'), new DateTime('2026-12-01'), 1);
+        $encerrada->setId(1);
+        $this->turmaRepo->method('update')->willReturn($encerrada);
+
+        $this->matriculaRepo->expects($this->once())
+            ->method('inativarByTurma')
+            ->with(1);
+
+        $this->service->update(1, ['status' => 'encerrado']);
+    }
+
+    public function test_update_does_not_call_inativar_when_already_encerrada(): void
+    {
+        $existing = new Turma('T', 'desc', 30, StatusTurma::Encerrado,
+            new DateTime('2026-06-01'), new DateTime('2026-12-01'), 1);
+        $existing->setId(1);
+        $this->turmaRepo->method('find')->with(1)->willReturn($existing);
+
+        $encerrada = clone $existing;
+        $this->turmaRepo->method('update')->willReturn($encerrada);
+
+        $this->matriculaRepo->expects($this->never())->method('inativarByTurma');
+
+        $this->service->update(1, ['status' => 'encerrado']);
     }
 }

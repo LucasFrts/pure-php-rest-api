@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Contracts\Repositories\CursoRepositoryInterface;
+use App\Contracts\Repositories\MatriculaRepositoryInterface;
 use App\Contracts\Repositories\TurmaRepositoryInterface;
 use App\Contracts\Services\TurmaServiceInterface;
 use App\Entities\StatusTurma;
@@ -13,7 +14,8 @@ class TurmaService implements TurmaServiceInterface
 {
     public function __construct(
         private TurmaRepositoryInterface $turmaRepo,
-        private CursoRepositoryInterface $cursoRepo
+        private CursoRepositoryInterface $cursoRepo,
+        private MatriculaRepositoryInterface $matriculaRepo
     ) {
     }
 
@@ -48,17 +50,27 @@ class TurmaService implements TurmaServiceInterface
     {
         $existing = $this->turmaRepo->find($id);
 
+        $newStatus = isset($data['status'])
+            ? StatusTurma::fromString($data['status'])
+            : $existing->getStatus();
+
         $turma = new Turma(
-            $data['titulo']           ?? $existing->getTitulo(),
-            $data['descricao']        ?? $existing->getDescricao(),
+            $data['titulo']          ?? $existing->getTitulo(),
+            $data['descricao']       ?? $existing->getDescricao(),
             isset($data['quantidade_vagas']) ? (int) $data['quantidade_vagas'] : $existing->getQuantidadeVagas(),
-            isset($data['status']) ? StatusTurma::fromString($data['status']) : $existing->getStatus(),
+            $newStatus,
             isset($data['data_inicio']) ? new DateTime($data['data_inicio']) : $existing->getDataInicio(),
             isset($data['data_fim'])    ? new DateTime($data['data_fim'])    : $existing->getDataFim(),
             $existing->getCursoId()
         );
 
-        return $this->turmaRepo->update($id, $turma);
+        $updated = $this->turmaRepo->update($id, $turma);
+
+        if ($existing->getStatus() !== StatusTurma::Encerrado && $newStatus === StatusTurma::Encerrado) {
+            $this->matriculaRepo->inativarByTurma($id);
+        }
+
+        return $updated;
     }
 
     public function destroy(int $id): void

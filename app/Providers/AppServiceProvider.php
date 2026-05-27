@@ -109,7 +109,8 @@ class AppServiceProvider extends ServiceProvider
             TurmaServiceInterface::class,
             fn(Container $c) => new TurmaService(
                 $c->get(TurmaRepositoryInterface::class),
-                $c->get(CursoRepositoryInterface::class)
+                $c->get(CursoRepositoryInterface::class),
+                $c->get(MatriculaRepositoryInterface::class)
             )
         );
 
