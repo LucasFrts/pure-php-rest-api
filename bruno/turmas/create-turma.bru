@@ -1,0 +1,22 @@
+meta {
+  name: Create Turma
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}{{apiPrefix}}/cursos/1/turmas
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "titulo": "Turma 01 - 2026",
+    "descricao": "Primeira turma do semestre",
+    "quantidade_vagas": 30,
+    "status": "disponivel",
+    "data_inicio": "2026-06-01",
+    "data_fim": "2026-12-31"
+  }
+}

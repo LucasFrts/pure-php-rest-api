@@ -1,0 +1,22 @@
+meta {
+  name: Update Turma
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}{{apiPrefix}}/turmas/1
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "titulo": "Turma 01 - 2026 Atualizada",
+    "descricao": "Descrição atualizada da turma",
+    "quantidade_vagas": 40,
+    "status": "disponivel",
+    "data_inicio": "2026-06-01",
+    "data_fim": "2026-12-31"
+  }
+}
