@@ -6,6 +6,7 @@ use App\Contracts\Repositories\MatriculaRepositoryInterface;
 use App\Contracts\Repositories\TurmaRepositoryInterface;
 use App\Contracts\Services\MatriculaServiceInterface;
 use App\Entities\Matricula;
+use App\Entities\StatusMatricula;
 use App\Entities\StatusTurma;
 use App\Exceptions\Http\UnprocessableEntity;
 use DateTime;
@@ -42,6 +43,24 @@ class MatriculaService implements MatriculaServiceInterface
     public function getByUsuario(int $usuarioId): array
     {
         return $this->matriculaRepo->getByUsuario($usuarioId);
+    }
+
+    public function updateStatus(int $id, string $status): Matricula
+    {
+        $matricula = $this->matriculaRepo->find($id);
+        $turma     = $this->turmaRepo->find($matricula->getTurmaId());
+
+        if ($turma->getStatus() === StatusTurma::Encerrado) {
+            throw new UnprocessableEntity('Turma encerrada');
+        }
+
+        try {
+            $statusEnum = StatusMatricula::fromString($status);
+        } catch (\ValueError) {
+            throw new UnprocessableEntity("Status inválido: {$status}");
+        }
+
+        return $this->matriculaRepo->updateStatus($id, $statusEnum);
     }
 
     public function destroy(int $id): void

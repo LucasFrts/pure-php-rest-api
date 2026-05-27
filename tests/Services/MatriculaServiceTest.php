@@ -5,6 +5,7 @@ namespace Tests\Services;
 use App\Contracts\Repositories\MatriculaRepositoryInterface;
 use App\Contracts\Repositories\TurmaRepositoryInterface;
 use App\Entities\Matricula;
+use App\Entities\StatusMatricula;
 use App\Entities\StatusTurma;
 use App\Entities\Turma;
 use App\Exceptions\Http\NotFound;
@@ -32,6 +33,13 @@ class MatriculaServiceTest extends TestCase
             new DateTime('-1 day'), new DateTime('+1 day'), $cursoId);
         $t->setId($id);
         return $t;
+    }
+
+    private function makeMatricula(int $id = 1, int $turmaId = 1): Matricula
+    {
+        $m = new Matricula(1, $turmaId, 1);
+        $m->setId($id);
+        return $m;
     }
 
     public function test_enroll_succeeds_for_available_turma(): void
@@ -111,5 +119,55 @@ class MatriculaServiceTest extends TestCase
     {
         $this->matriculaRepo->expects($this->once())->method('destroy')->with(5);
         $this->service->destroy(5);
+    }
+
+    public function test_update_status_returns_updated_matricula(): void
+    {
+        $matricula = $this->makeMatricula(turmaId: 1);
+        $turma     = $this->makeAvailableTurma(id: 1);
+        $updated   = $this->makeMatricula(turmaId: 1);
+        $updated->setStatus(StatusMatricula::Inativo);
+
+        $this->matriculaRepo->method('find')->with(1)->willReturn($matricula);
+        $this->turmaRepo->method('find')->with(1)->willReturn($turma);
+        $this->matriculaRepo->method('updateStatus')
+            ->with(1, StatusMatricula::Inativo)
+            ->willReturn($updated);
+
+        $result = $this->service->updateStatus(1, 'inativo');
+        $this->assertSame(StatusMatricula::Inativo, $result->getStatus());
+    }
+
+    public function test_update_status_throws_when_matricula_not_found(): void
+    {
+        $this->matriculaRepo->method('find')->willThrowException(new NotFound());
+        $this->expectException(NotFound::class);
+        $this->service->updateStatus(99, 'ativo');
+    }
+
+    public function test_update_status_throws_when_turma_encerrada(): void
+    {
+        $matricula = $this->makeMatricula(turmaId: 1);
+        $turma     = new Turma('T', 'desc', 10, StatusTurma::Encerrado,
+            new DateTime('-30 days'), new DateTime('-1 day'), 1);
+        $turma->setId(1);
+
+        $this->matriculaRepo->method('find')->willReturn($matricula);
+        $this->turmaRepo->method('find')->willReturn($turma);
+
+        $this->expectException(UnprocessableEntity::class);
+        $this->service->updateStatus(1, 'cancelado');
+    }
+
+    public function test_update_status_throws_for_invalid_status_string(): void
+    {
+        $matricula = $this->makeMatricula(turmaId: 1);
+        $turma     = $this->makeAvailableTurma(id: 1);
+
+        $this->matriculaRepo->method('find')->willReturn($matricula);
+        $this->turmaRepo->method('find')->willReturn($turma);
+
+        $this->expectException(UnprocessableEntity::class);
+        $this->service->updateStatus(1, 'invalido');
     }
 }

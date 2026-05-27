@@ -10,5 +10,7 @@ interface MatriculaServiceInterface
 
     public function getByUsuario(int $usuarioId): array;
 
+    public function updateStatus(int $id, string $status): Matricula;
+
     public function destroy(int $id): void;
 }
