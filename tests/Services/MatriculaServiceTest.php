@@ -5,26 +5,29 @@ namespace Tests\Services;
 use App\Contracts\Repositories\MatriculaRepositoryInterface;
 use App\Contracts\Repositories\TurmaRepositoryInterface;
 use App\Entities\Matricula;
-use App\Entities\StatusMatricula;
-use App\Entities\StatusTurma;
+use App\Enums\StatusMatricula;
+use App\Enums\StatusTurma;
 use App\Entities\Turma;
 use App\Exceptions\Http\NotFound;
 use App\Exceptions\Http\UnprocessableEntity;
 use App\Services\MatriculaService;
 use DateTime;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 class MatriculaServiceTest extends TestCase
 {
     private MatriculaRepositoryInterface $matriculaRepo;
     private TurmaRepositoryInterface $turmaRepo;
+    private LoggerInterface $logger;
     private MatriculaService $service;
 
     protected function setUp(): void
     {
         $this->matriculaRepo = $this->createMock(MatriculaRepositoryInterface::class);
         $this->turmaRepo     = $this->createMock(TurmaRepositoryInterface::class);
-        $this->service       = new MatriculaService($this->matriculaRepo, $this->turmaRepo);
+        $this->logger        = $this->createMock(LoggerInterface::class);
+        $this->service       = new MatriculaService($this->matriculaRepo, $this->turmaRepo, $this->logger);
     }
 
     private function makeAvailableTurma(int $id = 1, int $cursoId = 1): Turma
@@ -169,5 +172,95 @@ class MatriculaServiceTest extends TestCase
 
         $this->expectException(UnprocessableEntity::class);
         $this->service->updateStatus(1, 'invalido');
+    }
+
+    public function test_enroll_logs_info_on_success(): void
+    {
+        $turma = $this->makeAvailableTurma(id: 3);
+        $this->turmaRepo->method('find')->willReturn($turma);
+        $this->matriculaRepo->method('findByUsuarioAndCurso')->willReturn(null);
+
+        $stored = new Matricula(5, 3, 1);
+        $stored->setId(42);
+        $this->matriculaRepo->method('store')->willReturn($stored);
+
+        $this->logger->expects($this->once())
+            ->method('info')
+            ->with($this->stringContains('MatriculaService::enroll usuarioId=5 turmaId=3 → matriculaId=42'));
+
+        $this->service->enroll(5, 3);
+    }
+
+    public function test_enroll_logs_error_on_turma_encerrada(): void
+    {
+        $t = new Turma('T', 'desc', 10, StatusTurma::Encerrado,
+            new DateTime('-1 day'), new DateTime('+1 day'), 1);
+        $t->setId(1);
+        $this->turmaRepo->method('find')->willReturn($t);
+
+        $this->logger->expects($this->once())
+            ->method('error')
+            ->with($this->stringContains('MatriculaService::enroll FAILED: Turma está encerrada'));
+
+        $this->expectException(UnprocessableEntity::class);
+        $this->service->enroll(1, 1);
+    }
+
+    public function test_enroll_logs_error_on_periodo_invalido(): void
+    {
+        $t = new Turma('T', 'desc', 10, StatusTurma::Disponivel,
+            new DateTime('+5 days'), new DateTime('+30 days'), 1);
+        $t->setId(1);
+        $this->turmaRepo->method('find')->willReturn($t);
+
+        $this->logger->expects($this->once())
+            ->method('error')
+            ->with($this->stringContains('MatriculaService::enroll FAILED:'));
+
+        $this->expectException(UnprocessableEntity::class);
+        $this->service->enroll(1, 1);
+    }
+
+    public function test_updateStatus_logs_info_on_success(): void
+    {
+        $matricula = $this->makeMatricula(id: 7, turmaId: 1);
+        $turma     = $this->makeAvailableTurma(id: 1);
+        $updated   = $this->makeMatricula(id: 7, turmaId: 1);
+        $updated->setStatus(StatusMatricula::Inativo);
+
+        $this->matriculaRepo->method('find')->willReturn($matricula);
+        $this->turmaRepo->method('find')->willReturn($turma);
+        $this->matriculaRepo->method('updateStatus')->willReturn($updated);
+
+        $this->logger->expects($this->once())
+            ->method('info')
+            ->with($this->stringContains('MatriculaService::updateStatus matriculaId=7 → Inativo'));
+
+        $this->service->updateStatus(7, 'inativo');
+    }
+
+    public function test_updateStatus_logs_error_on_invalid_status(): void
+    {
+        $matricula = $this->makeMatricula(turmaId: 1);
+        $turma     = $this->makeAvailableTurma(id: 1);
+
+        $this->matriculaRepo->method('find')->willReturn($matricula);
+        $this->turmaRepo->method('find')->willReturn($turma);
+
+        $this->logger->expects($this->once())
+            ->method('error')
+            ->with($this->stringContains('MatriculaService::updateStatus FAILED:'));
+
+        $this->expectException(UnprocessableEntity::class);
+        $this->service->updateStatus(1, 'invalido');
+    }
+
+    public function test_destroy_logs_info_on_success(): void
+    {
+        $this->matriculaRepo->method('destroy')->with(5);
+        $this->logger->expects($this->once())
+            ->method('info')
+            ->with($this->stringContains('MatriculaService::destroy matriculaId=5'));
+        $this->service->destroy(5);
     }
 }
