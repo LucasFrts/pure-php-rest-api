@@ -9,16 +9,19 @@ use App\Exceptions\Http\UnprocessableEntity;
 use App\Services\UsuarioService;
 use App\ValueObjects\Email;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 class UsuarioServiceTest extends TestCase
 {
     private UsuarioRepositoryInterface $repo;
+    private LoggerInterface $logger;
     private UsuarioService $service;
 
     protected function setUp(): void
     {
         $this->repo    = $this->createMock(UsuarioRepositoryInterface::class);
-        $this->service = new UsuarioService($this->repo);
+        $this->logger  = $this->createMock(LoggerInterface::class);
+        $this->service = new UsuarioService($this->repo, $this->logger);
     }
 
     private function makeUsuario(int $id = 1): Usuario
@@ -96,5 +99,56 @@ class UsuarioServiceTest extends TestCase
     {
         $this->repo->expects($this->once())->method('destroy')->with(1);
         $this->service->destroy(1);
+    }
+
+    public function test_store_logs_info_on_success(): void
+    {
+        $usuario = $this->makeUsuario(8);
+        $this->repo->method('store')->willReturn($usuario);
+        $this->logger->expects($this->once())
+            ->method('info')
+            ->with($this->stringContains('UsuarioService::store usuarioId=8'));
+        $this->service->store(['nome' => 'João', 'email' => 'joao@test.com']);
+    }
+
+    public function test_store_logs_error_on_invalid_email(): void
+    {
+        $this->logger->expects($this->once())
+            ->method('error')
+            ->with($this->stringContains('UsuarioService::store FAILED:'));
+        $this->expectException(UnprocessableEntity::class);
+        $this->service->store(['nome' => 'João', 'email' => 'not-an-email']);
+    }
+
+    public function test_update_logs_info_on_success(): void
+    {
+        $existing = $this->makeUsuario(4);
+        $updated  = $this->makeUsuario(4);
+        $this->repo->method('find')->willReturn($existing);
+        $this->repo->method('update')->willReturn($updated);
+        $this->logger->expects($this->once())
+            ->method('info')
+            ->with($this->stringContains('UsuarioService::update usuarioId=4'));
+        $this->service->update(4, ['nome' => 'Maria']);
+    }
+
+    public function test_update_logs_error_on_invalid_email(): void
+    {
+        $existing = $this->makeUsuario(2);
+        $this->repo->method('find')->willReturn($existing);
+        $this->logger->expects($this->once())
+            ->method('error')
+            ->with($this->stringContains('UsuarioService::update FAILED:'));
+        $this->expectException(UnprocessableEntity::class);
+        $this->service->update(2, ['email' => 'not-an-email']);
+    }
+
+    public function test_destroy_logs_info_on_success(): void
+    {
+        $this->repo->method('destroy')->with(3);
+        $this->logger->expects($this->once())
+            ->method('info')
+            ->with($this->stringContains('UsuarioService::destroy usuarioId=3'));
+        $this->service->destroy(3);
     }
 }
