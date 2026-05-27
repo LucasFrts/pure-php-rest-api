@@ -32,7 +32,7 @@ class Request implements RequestInterface
      */
     public function __construct()
     {
-        $this->requestMethod = strtoupper(trim($_SERVER['REQUEST_METHOD']));
+        $this->requestMethod = strtoupper(trim($_SERVER['REQUEST_METHOD'] ?? 'GET'));
         $this->contentType   = !empty($_SERVER['CONTENT_TYPE']) ? trim($_SERVER['CONTENT_TYPE']) : '';
         $this->queryParams   = $_GET ?? [];
         $this->postParams    = $_POST ?? [];

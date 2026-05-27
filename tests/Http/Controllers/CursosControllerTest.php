@@ -37,7 +37,7 @@ class CursosControllerTest extends TestCase
 
     public function test_index_returns_200_with_list(): void
     {
-        $this->service->method('get')->willReturn([$this->makeCurso()]);
+        $this->service->method('getAvailable')->willReturn([$this->makeCurso()]);
         $response = $this->controller->index();
         $this->assertSame(200, $response->getStatusForTest());
     }

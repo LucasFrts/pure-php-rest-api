@@ -20,7 +20,7 @@ class CursosController extends BaseController
             'titulo' => $request->query('titulo'),
             'tema'   => $request->query('tema'),
         ]);
-        $cursos = $this->service->get($filters);
+        $cursos = $this->service->getAvailable($filters);
         return $this->response()->success(['data' => array_map([$this, 'serializeCurso'], $cursos)]);
     }
 
