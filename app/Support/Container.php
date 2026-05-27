@@ -185,4 +185,17 @@ class Container implements ContainerInterface
     {
         static::$instance = $instance;
     }
+
+    /**
+     * Remove a instância singleton em cache para o identificador informado.
+     *
+     * Útil em testes para forçar a recriação de um singleton após re-registrar
+     * sua fábrica, evitando que o cache stale seja retornado por get().
+     *
+     * @param string $id Nome da classe ou interface.
+     */
+    public function forgetInstance(string $id): void
+    {
+        unset($this->instances[$id]);
+    }
 }

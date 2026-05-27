@@ -143,7 +143,7 @@ class Request implements RequestInterface
     public function data(): mixed
     {
         if (!str_starts_with(strtolower($this->contentType), 'application/json')) {
-            return [];
+            return $this->postParams;
         }
         $content = trim(file_get_contents('php://input'));
         return json_decode($content, true) ?? [];

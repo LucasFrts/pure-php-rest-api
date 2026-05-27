@@ -39,6 +39,7 @@ abstract class IntegrationTestCase extends TestCase
     {
         $this->pdo = new PDO('sqlite::memory:');
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->pdo->exec('PRAGMA foreign_keys = ON;');
         $this->pdo->exec(file_get_contents(__DIR__ . '/schema.sql'));
         $this->bootContainer();
     }
@@ -113,6 +114,7 @@ abstract class IntegrationTestCase extends TestCase
         $_POST = $body;
 
         // Re-instantiate Request so it picks up the new superglobals.
+        $this->container->forgetInstance(RequestInterface::class);
         $this->container->singleton(RequestInterface::class, fn() => new Request());
 
         try {
