@@ -1,0 +1,18 @@
+meta {
+  name: Create Matricula
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}{{apiPrefix}}/matriculas
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "usuario_id": 1,
+    "turma_id": 1
+  }
+}
