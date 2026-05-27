@@ -14,14 +14,14 @@ class TurmasController extends BaseController
 
     public function store(int $cursoId): ResponseInterface
     {
-        $data  = $this->request()->getJSON();
+        $data  = $this->request()->data();
         $turma = $this->service->store($cursoId, $data);
         return $this->response()->created(['data' => $this->serializeTurma($turma)]);
     }
 
     public function update(int $id): ResponseInterface
     {
-        $data  = $this->request()->getJSON();
+        $data  = $this->request()->data();
         $turma = $this->service->update($id, $data);
         return $this->response()->success(['data' => $this->serializeTurma($turma)]);
     }

@@ -85,5 +85,5 @@ interface RequestInterface
      * Aceita qualquer variante de 'application/json' (incluindo com charset).
      * Retorna um array vazio se o Content-Type não for JSON ou se o corpo estiver vazio.
      */
-    public function getJSON(): mixed;
+    public function data(): mixed;
 }

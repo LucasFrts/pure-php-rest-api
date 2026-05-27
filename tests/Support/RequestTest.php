@@ -174,7 +174,7 @@ class RequestTest extends TestCase
         $_POST = [];
 
         $request = new Request();
-        $this->assertSame([], $request->getJSON());
+        $this->assertSame([], $request->data());
     }
 
     public function test_get_json_accepts_content_type_with_charset(): void
@@ -186,6 +186,6 @@ class RequestTest extends TestCase
 
         $request = new Request();
         // php://input is empty in CLI — returns [] from null coalescing, not false negative from wrong content-type check
-        $this->assertSame([], $request->getJSON());
+        $this->assertSame([], $request->data());
     }
 }

@@ -13,7 +13,7 @@ class UsuariosController extends BaseController
 
     public function store(): ResponseInterface
     {
-        $data    = $this->request()->getJSON();
+        $data    = $this->request()->data();
         $usuario = $this->service->store($data);
         return $this->response()->created([
             'data' => [

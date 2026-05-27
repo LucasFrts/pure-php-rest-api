@@ -24,14 +24,14 @@ class CursosController extends BaseController
 
     public function store(): ResponseInterface
     {
-        $data  = $this->request()->getJSON();
+        $data  = $this->request()->data();
         $curso = $this->service->store($data);
         return $this->response()->created(['data' => $this->serializeCurso($curso)]);
     }
 
     public function update(int $id): ResponseInterface
     {
-        $data  = $this->request()->getJSON();
+        $data  = $this->request()->data();
         $curso = $this->service->update($id, $data);
         return $this->response()->success(['data' => $this->serializeCurso($curso)]);
     }

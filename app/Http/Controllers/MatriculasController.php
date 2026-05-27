@@ -14,7 +14,7 @@ class MatriculasController extends BaseController
 
     public function store(): ResponseInterface
     {
-        $data      = $this->request()->getJSON();
+        $data      = $this->request()->data();
         $matricula = $this->service->enroll((int) $data['usuario_id'], (int) $data['turma_id']);
         return $this->response()->created(['data' => $this->serialize($matricula)]);
     }

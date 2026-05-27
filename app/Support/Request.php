@@ -140,7 +140,7 @@ class Request implements RequestInterface
      * Aceita qualquer variante de 'application/json' (incluindo 'application/json; charset=utf-8').
      * Retorna um array vazio se o Content-Type não for JSON ou se o corpo estiver vazio ou inválido.
      */
-    public function getJSON(): mixed
+    public function data(): mixed
     {
         if (!str_starts_with(strtolower($this->contentType), 'application/json')) {
             return [];
