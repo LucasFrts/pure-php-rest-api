@@ -4,7 +4,7 @@ namespace Tests\Http\Controllers;
 use App\Contracts\RequestInterface;
 use App\Contracts\ResponseInterface;
 use App\Contracts\Services\TurmaServiceInterface;
-use App\Entities\StatusTurma;
+use App\Enums\StatusTurma;
 use App\Entities\Turma;
 use App\Http\Controllers\TurmasController;
 use App\Support\Container;
@@ -55,5 +55,19 @@ class TurmasControllerTest extends TestCase
     {
         $response = $this->controller->destroy(1);
         $this->assertSame(204, $response->getStatusForTest());
+    }
+
+    public function test_index_returns_200_with_list(): void
+    {
+        $this->service->method('get')->willReturn([$this->makeTurma()]);
+        $response = $this->controller->index();
+        $this->assertSame(200, $response->getStatusForTest());
+    }
+
+    public function test_index_by_curso_returns_200_with_list(): void
+    {
+        $this->service->method('get')->willReturn([$this->makeTurma()]);
+        $response = $this->controller->indexByCurso(1);
+        $this->assertSame(200, $response->getStatusForTest());
     }
 }

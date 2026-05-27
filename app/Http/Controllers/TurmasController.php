@@ -28,4 +28,14 @@ class TurmasController extends BaseController
         $this->service->destroy($id);
         return $this->response()->noContent();
     }
+
+    public function index(): ResponseInterface
+    {
+        return $this->response()->success(['data' => $this->service->get()]);
+    }
+
+    public function indexByCurso(int $cursoId): ResponseInterface
+    {
+        return $this->response()->success(['data' => $this->service->get(['curso_id' => $cursoId])]);
+    }
 }
