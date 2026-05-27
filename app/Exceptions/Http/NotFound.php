@@ -3,20 +3,16 @@
 namespace App\Exceptions\Http;
 
 use App\Contracts\HttpExceptionInterface;
-use Exception;
-use Throwable;
 
-class NotFound extends Exception implements HttpExceptionInterface
+class NotFound extends \RuntimeException implements HttpExceptionInterface
 {
-    public function __construct(
-        string $message = 'Not Found',
-        Throwable|null $previous = null
-    ) {
-        parent::__construct($message, 404, $previous);
+    public function __construct(string $message = 'Not Found')
+    {
+        parent::__construct($message, 404);
     }
 
     public function getStatusCode(): int
     {
-        return $this->getCode();
+        return 404;
     }
 }

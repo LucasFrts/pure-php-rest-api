@@ -12,10 +12,33 @@ class Curso
         private ?int $id = null
     ) {}
 
-    public function getId(): ?int { return $this->id; }
-    public function getTitulo(): string { return $this->titulo; }
-    public function getDescricao(): string { return $this->descrição; }
-    public function getTema(): Temas { return $this->tema; }
-    public function getUrlImagem(): string { return $this->urlImagem; }
-    public function setId(int $id): void { $this->id = $id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getTitulo(): string
+    {
+        return $this->titulo;
+    }
+
+    public function getDescricao(): string
+    {
+        return $this->descrição;
+    }
+
+    public function getTema(): Temas
+    {
+        return $this->tema;
+    }
+
+    public function getUrlImagem(): string
+    {
+        return $this->urlImagem;
+    }
+
+    public function setId(int $id): void
+    {
+        $this->id = $id;
+    }
 }
