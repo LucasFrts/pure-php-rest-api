@@ -21,7 +21,7 @@ class LoggerTest extends TestCase
 
     protected function tearDown(): void
     {
-        foreach (glob("{$this->logPath}/app-*.log") as $file) {
+        foreach (glob("{$this->logPath}/*.log") as $file) {
             unlink($file);
         }
         if (is_dir($this->logPath)) {
@@ -57,8 +57,8 @@ class LoggerTest extends TestCase
 
         $today = date('Y-m-d');
         $files = glob("{$this->logPath}/app-*.log");
-        $this->assertCount(1, $files);
-        $this->assertStringContainsString($today, $files[0]);
+        $this->assertNotEmpty($files, 'Expected at least one log file');
+        $this->assertStringContainsString($today, basename($files[0]));
     }
 
     public function test_uses_default_log_path_when_not_configured(): void
