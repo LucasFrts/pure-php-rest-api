@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/MigrationInterface.php';
 
 $config = require __DIR__ . '/../config.php';
 
@@ -71,7 +72,9 @@ foreach ($files as $file) {
         // This does protect pure DML migrations and makes intent explicit.
         $pdo->beginTransaction();
         $migration->up($pdo);
-        $pdo->commit();
+        if ($pdo->inTransaction()) {
+            $pdo->commit();
+        }
     } catch (\Throwable $e) {
         if ($pdo->inTransaction()) {
             $pdo->rollBack();
