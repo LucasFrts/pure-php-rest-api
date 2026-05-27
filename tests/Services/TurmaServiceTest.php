@@ -6,19 +6,21 @@ use App\Contracts\Repositories\CursoRepositoryInterface;
 use App\Contracts\Repositories\MatriculaRepositoryInterface;
 use App\Contracts\Repositories\TurmaRepositoryInterface;
 use App\Entities\Curso;
-use App\Entities\StatusTurma;
-use App\Entities\Temas;
 use App\Entities\Turma;
+use App\Enums\StatusTurma;
+use App\Enums\Temas;
 use App\Exceptions\Http\NotFound;
 use App\Services\TurmaService;
 use DateTime;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 class TurmaServiceTest extends TestCase
 {
     private TurmaRepositoryInterface $turmaRepo;
     private CursoRepositoryInterface $cursoRepo;
     private MatriculaRepositoryInterface $matriculaRepo;
+    private LoggerInterface $logger;
     private TurmaService $service;
 
     protected function setUp(): void
@@ -26,7 +28,13 @@ class TurmaServiceTest extends TestCase
         $this->turmaRepo     = $this->createMock(TurmaRepositoryInterface::class);
         $this->cursoRepo     = $this->createMock(CursoRepositoryInterface::class);
         $this->matriculaRepo = $this->createMock(MatriculaRepositoryInterface::class);
-        $this->service       = new TurmaService($this->turmaRepo, $this->cursoRepo, $this->matriculaRepo);
+        $this->logger        = $this->createMock(LoggerInterface::class);
+        $this->service       = new TurmaService(
+            $this->turmaRepo,
+            $this->cursoRepo,
+            $this->matriculaRepo,
+            $this->logger
+        );
     }
 
     private function makeTurma(int $id = 1, int $cursoId = 1): Turma
@@ -140,5 +148,40 @@ class TurmaServiceTest extends TestCase
         $this->matriculaRepo->expects($this->never())->method('inativarByTurma');
 
         $this->service->update(1, ['status' => 'encerrado']);
+    }
+
+    public function test_store_logs_info_on_success(): void
+    {
+        $turma = $this->makeTurma(5);
+        $this->cursoRepo->method('find')->willReturn($this->makeCurso());
+        $this->turmaRepo->method('store')->willReturn($turma);
+        $this->logger->expects($this->once())
+            ->method('info')
+            ->with($this->stringContains('TurmaService::store turmaId=5'));
+        $this->service->store(1, [
+            'titulo' => 'T', 'descricao' => 'd', 'quantidade_vagas' => 10,
+            'status' => 'disponivel', 'data_inicio' => '2026-06-01', 'data_fim' => '2026-12-01',
+        ]);
+    }
+
+    public function test_update_logs_info_on_success(): void
+    {
+        $existing = $this->makeTurma(3);
+        $updated  = $this->makeTurma(3);
+        $this->turmaRepo->method('find')->willReturn($existing);
+        $this->turmaRepo->method('update')->willReturn($updated);
+        $this->logger->expects($this->once())
+            ->method('info')
+            ->with($this->stringContains('TurmaService::update turmaId=3'));
+        $this->service->update(3, ['titulo' => 'Novo']);
+    }
+
+    public function test_destroy_logs_info_on_success(): void
+    {
+        $this->turmaRepo->method('destroy')->with(9);
+        $this->logger->expects($this->once())
+            ->method('info')
+            ->with($this->stringContains('TurmaService::destroy turmaId=9'));
+        $this->service->destroy(9);
     }
 }

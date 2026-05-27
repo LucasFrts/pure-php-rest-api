@@ -6,16 +6,18 @@ use App\Contracts\Repositories\CursoRepositoryInterface;
 use App\Contracts\Repositories\MatriculaRepositoryInterface;
 use App\Contracts\Repositories\TurmaRepositoryInterface;
 use App\Contracts\Services\TurmaServiceInterface;
-use App\Enums\StatusTurma;
 use App\Entities\Turma;
+use App\Enums\StatusTurma;
 use DateTime;
+use Psr\Log\LoggerInterface;
 
 class TurmaService implements TurmaServiceInterface
 {
     public function __construct(
         private TurmaRepositoryInterface $turmaRepo,
         private CursoRepositoryInterface $cursoRepo,
-        private MatriculaRepositoryInterface $matriculaRepo
+        private MatriculaRepositoryInterface $matriculaRepo,
+        private LoggerInterface $logger
     ) {
     }
 
@@ -43,7 +45,9 @@ class TurmaService implements TurmaServiceInterface
             $cursoId
         );
 
-        return $this->turmaRepo->store($turma);
+        $result = $this->turmaRepo->store($turma);
+        $this->logger->info("TurmaService::store turmaId={$result->getId()}");
+        return $result;
     }
 
     public function update(int $id, mixed $data): Turma
@@ -65,6 +69,7 @@ class TurmaService implements TurmaServiceInterface
         );
 
         $updated = $this->turmaRepo->update($id, $turma);
+        $this->logger->info("TurmaService::update turmaId={$id}");
 
         if ($existing->getStatus() !== StatusTurma::Encerrado && $newStatus === StatusTurma::Encerrado) {
             $this->matriculaRepo->inativarByTurma($id);
@@ -76,5 +81,6 @@ class TurmaService implements TurmaServiceInterface
     public function destroy(int $id): void
     {
         $this->turmaRepo->destroy($id);
+        $this->logger->info("TurmaService::destroy turmaId={$id}");
     }
 }
