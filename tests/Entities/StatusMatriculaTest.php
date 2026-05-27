@@ -32,4 +32,14 @@ class StatusMatriculaTest extends TestCase
     {
         $this->assertSame('cancelado', StatusMatricula::Cancelado->toString());
     }
+
+    public function test_from_string_returns_inativo(): void
+    {
+        $this->assertSame(StatusMatricula::Inativo, StatusMatricula::fromString('inativo'));
+    }
+
+    public function test_to_string_returns_inativo(): void
+    {
+        $this->assertSame('inativo', StatusMatricula::Inativo->toString());
+    }
 }
