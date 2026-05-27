@@ -32,30 +32,29 @@ class Dispatcher
     /**
      * Resolve e executa a action do controller indicado pela rota.
      *
-     * O controller é obtido via container, garantindo que suas dependências
-     * (como Request e Response) sejam injetadas automaticamente. Após a execução,
-     * se o retorno for uma ResponseInterface, o método send() é chamado para
-     * emitir a resposta HTTP.
+     * Aceita tanto FQCN completo (quando registrado via Controller::class) quanto
+     * nome curto (quando usado com controllerNamespace customizado, como em testes).
+     * Os params extraídos pelo Router são repassados como args posicionais ao action.
      *
-     * @param array{controller: string, action: string} $route Rota resolvida pelo Router.
+     * @param array{controller: string, action: string, params: array<string, string>} $route
      *
      * @throws \RuntimeException Quando o método de action não existe no controller.
      */
-    public function dispatch(array $route): void
+    public function dispatch(array $route): ?ResponseInterface
     {
-        $fullClassWithNamespace = $this->controllerNamespace . $route['controller'];
+        $fqcn = str_contains($route['controller'], '\\')
+            ? $route['controller']
+            : $this->controllerNamespace . $route['controller'];
         $action = $route['action'];
 
-        $controller = $this->container->get($fullClassWithNamespace);
+        $controller = $this->container->get($fqcn);
 
         if (!method_exists($controller, $action)) {
-            throw new \RuntimeException("Action '{$action}' not found on controller '{$fullClassWithNamespace}'.");
+            throw new \RuntimeException("Action '{$action}' not found on controller '{$fqcn}'.");
         }
 
-        $result = $controller->$action();
+        $result = $controller->$action(...array_values($route['params'] ?? []));
 
-        if ($result instanceof ResponseInterface) {
-            $result->send();
-        }
+        return $result instanceof ResponseInterface ? $result : null;
     }
 }
