@@ -4,6 +4,11 @@ namespace App\Contracts\Services;
 
 use App\Entities\Turma;
 
+/**
+ * 
+ * @see App\Services\TurmaService
+ * 
+ */
 interface TurmaServiceInterface
 {
     public function get(array $filters = []) : array;

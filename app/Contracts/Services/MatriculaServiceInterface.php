@@ -4,6 +4,11 @@ namespace App\Contracts\Services;
 
 use App\Entities\Matricula;
 
+/**
+ * 
+ * @see App\Services\MatriculaService
+ * 
+ */
 interface MatriculaServiceInterface
 {
     public function enroll(int $usuarioId, int $turmaId): Matricula;

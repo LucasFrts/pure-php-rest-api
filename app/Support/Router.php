@@ -7,14 +7,6 @@ use App\Exceptions\Http\RouteNotFound;
 
 /**
  * Gerencia o registro e a resolução de rotas HTTP da aplicação.
- *
- * Cada rota associa um par (URI, método HTTP) a um controller e action no
- * formato 'NomeController@nomeMetodo'. Os métodos de registro (get, post, etc.)
- * retornam a própria instância para permitir encadeamento de chamadas no
- * arquivo de rotas.
- *
- * A resolução é feita por correspondência exata de URI e método. Rotas com
- * parâmetros dinâmicos não são suportadas nesta implementação.
  */
 class Router
 {

@@ -4,6 +4,11 @@ namespace App\Contracts\Repositories;
 
 use App\Entities\Curso;
 
+/**
+ * 
+ * @see App\Repositories\CursoRepository
+ * 
+ */
 interface CursoRepositoryInterface
 {
     public function get(array $filters = []): array;

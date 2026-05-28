@@ -8,16 +8,6 @@ use App\Contracts\ResponseInterface;
 /**
  * Constrói e envia respostas HTTP em formato JSON.
  *
- * Implementa o padrão Fluent Builder: os métodos de configuração (withStatus,
- * withHeader, json) retornam a própria instância para permitir encadeamento.
- * O método send() finaliza a resposta emitindo o status HTTP, os headers e o
- * corpo JSON ao cliente.
- *
- * Os atalhos semânticos (success, created, etc.) combinam a definição do status
- * com dados e headers opcionais e enviam a resposta automaticamente, permitindo
- * que controllers retornem a resposta completa em uma única chamada:
- *
- *   return $this->response->created(['id' => 1], ['Location' => '/users/1']);
  */
 class Response implements ResponseInterface
 {
@@ -95,13 +85,6 @@ class Response implements ResponseInterface
     /**
      * Aplica status, dados e headers na resposta e a retorna para encadeamento.
      *
-     * Método interno usado por todos os atalhos semânticos para evitar duplicação.
-     * Só sobrescreve os dados se $data não estiver vazio, preservando dados
-     * previamente definidos via json() em caso de encadeamento.
-     *
-     * O envio efetivo (send()) é responsabilidade do Dispatcher, que o chama
-     * após a execução do controller — não é feito aqui.
-     *
      * @param int                   $status  Código HTTP a aplicar.
      * @param array<string, mixed>  $data    Dados opcionais do corpo.
      * @param array<string, string> $headers Headers opcionais adicionais.
@@ -145,9 +128,6 @@ class Response implements ResponseInterface
     /**
      * Configura a resposta como 204 No Content.
      *
-     * Usado quando a operação foi bem-sucedida mas não há corpo na resposta.
-     * Não aceita $data pois 204 não deve ter corpo.
-     *
      * @param array<string, string> $headers Headers opcionais adicionais.
      */
     public function noContent(array $headers = []): static
@@ -183,8 +163,6 @@ class Response implements ResponseInterface
 
     /**
      * Configura a resposta como 403 Forbidden.
-     *
-     * Indica que o usuário está autenticado mas não tem permissão para o recurso.
      *
      * @param array<string, mixed>  $data    Detalhes opcionais do erro.
      * @param array<string, string> $headers Headers opcionais adicionais.
@@ -224,9 +202,6 @@ class Response implements ResponseInterface
     /**
      * Configura a resposta como 500 Internal Server Error.
      *
-     * Usado para erros inesperados do servidor. Em produção, evite incluir
-     * detalhes internos no $data para não expor informações sensíveis.
-     *
      * @param array<string, mixed>  $data    Detalhes opcionais (apenas em desenvolvimento).
      * @param array<string, string> $headers Headers opcionais adicionais.
      */
@@ -243,17 +218,11 @@ class Response implements ResponseInterface
         return $this->status;
     }
 
-    /**
-     * Retorna os dados atuais do corpo. Uso exclusivo em testes.
-     */
     public function getDataForTest(): array
     {
         return $this->data;
     }
 
-    /**
-     * Retorna os headers atuais da resposta. Uso exclusivo em testes.
-     */
     public function getHeadersForTest(): array
     {
         return $this->headers;

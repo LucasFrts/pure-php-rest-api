@@ -5,6 +5,11 @@ namespace App\Contracts\Repositories;
 use App\Entities\Matricula;
 use App\Enums\StatusMatricula;
 
+/**
+ * 
+ * @see App\Repositories\MatriculaRepository
+ * 
+ */
 interface MatriculaRepositoryInterface
 {
     public function store(Matricula $matricula): Matricula;

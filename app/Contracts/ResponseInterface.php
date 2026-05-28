@@ -4,15 +4,9 @@ namespace App\Contracts;
 
 /**
  * Contrato para construção e envio de respostas HTTP em formato JSON.
- *
- * Segue o padrão Fluent Builder: os métodos de configuração retornam
- * a própria instância, permitindo encadear chamadas antes de finalizar
- * com send(). Os atalhos semânticos (success, created, etc.) combinam
- * a definição do status com a opção de já informar os dados e headers,
- * reduzindo a verbosidade nos controllers.
- *
- * Exemplo de uso:
- *   $this->response->created(['id' => 1], ['Location' => '/users/1'])->send();
+ * 
+ * @see App\Support\Response
+ * 
  */
 interface ResponseInterface
 {

@@ -8,30 +8,16 @@ namespace App\Contracts;
  * Abstrai o acesso aos dados da requisição (query string, corpo, headers)
  * de forma que os controllers não dependam diretamente das superglobais
  * do PHP ($_GET, $_POST, $_SERVER), tornando o código mais testável e desacoplado.
+ * 
+ * @see App\Support\Request
+ * 
  */
 interface RequestInterface
 {
-    /**
-     * Retorna o método HTTP da requisição em letras maiúsculas.
-     *
-     * Exemplos: 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'.
-     */
     public function method(): string;
 
-    /**
-     * Retorna o valor do header Content-Type da requisição.
-     *
-     * Retorna uma string vazia caso o header não tenha sido enviado.
-     */
     public function contentType(): string;
 
-    /**
-     * Verifica se o método HTTP da requisição corresponde ao informado.
-     *
-     * A comparação é insensível a maiúsculas e minúsculas.
-     *
-     * @param string $method Método a comparar (ex: 'get', 'POST').
-     */
     public function isMethod(string $method): bool;
 
     /**

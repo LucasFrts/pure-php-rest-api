@@ -4,6 +4,11 @@ namespace App\Contracts\Repositories;
 
 use App\Entities\Usuario;
 
+/**
+ * 
+ * @see App\Repositories\UsuarioRepository
+ * 
+ */
 interface UsuarioRepositoryInterface
 {
     public function get(array $filters = []) : array;
