@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Contracts\ResponseInterface;
+use RuntimeException;
 
 /**
  * Responsável por despachar uma requisição para o controller e action corretos.
@@ -50,7 +51,7 @@ class Dispatcher
         $controller = $this->container->get($fqcn);
 
         if (!method_exists($controller, $action)) {
-            throw new \RuntimeException("Action '{$action}' not found on controller '{$fqcn}'.");
+            throw new RuntimeException("Action '{$action}' not found on controller '{$fqcn}'.");
         }
 
         $result = $controller->$action(...array_values($route['params'] ?? []));

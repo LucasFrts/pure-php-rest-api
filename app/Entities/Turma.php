@@ -4,6 +4,7 @@ namespace App\Entities;
 
 use App\Contracts\EntityInterface;
 use App\Enums\StatusTurma;
+use App\Exceptions\Http\UnprocessableEntity;
 use DateTime;
 
 class Turma implements EntityInterface
@@ -62,6 +63,20 @@ class Turma implements EntityInterface
     public function setId(int $id): void
     {
         $this->id = $id;
+    }
+
+    public function decrementVaga(): void
+    {
+        $this->quantidadeVagas--;
+    }
+
+    public function validated() : self
+    {
+        if ($this->dataInicio > $this->dataFim) {
+            throw new UnprocessableEntity("A data final não pode ser anterior que a data de ínicio.");
+        }
+
+        return $this;
     }
 
     public function toArray(): array

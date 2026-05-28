@@ -2,6 +2,8 @@
 
 namespace App\Enums;
 
+use ValueError;
+
 enum StatusTurma
 {
     case Disponivel;
@@ -12,7 +14,7 @@ enum StatusTurma
         return match(strtolower($value)) {
             'disponivel' => self::Disponivel,
             'encerrado'  => self::Encerrado,
-            default      => throw new \ValueError("Invalid status: {$value}"),
+            default      => throw new ValueError("Invalid status: {$value}"),
         };
     }
 

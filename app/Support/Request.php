@@ -3,33 +3,23 @@
 namespace App\Support;
 
 use App\Contracts\RequestInterface;
+use App\Exceptions\Http\BadRequest;
+use Stringable;
 
 /**
  * Representa a requisição HTTP atual recebida pela aplicação.
  *
- * Captura os dados das superglobais ($_SERVER, $_GET, $_POST) no momento
- * da construção, encapsulando o acesso em métodos tipados e testáveis.
- * Ao isolar o uso direto das superglobais nesta classe, os controllers
- * ficam desacoplados do contexto global do PHP e podem ser testados
- * facilmente manipulando as superglobais antes de instanciar Request.
  */
 class Request implements RequestInterface
 {
-    /** @var array<string, mixed> Parâmetros da query string ($_GET). */
     private array $queryParams;
 
-    /** @var array<string, mixed> Campos do corpo da requisição ($_POST). */
     private array $postParams;
 
-    /** Método HTTP da requisição em letras maiúsculas (ex: 'GET', 'POST'). */
     private string $requestMethod;
 
-    /** Valor do header Content-Type, ou string vazia se ausente. */
     private string $contentType;
 
-    /**
-     * Lê e armazena os dados da requisição a partir das superglobais do PHP.
-     */
     public function __construct()
     {
         $this->requestMethod = strtoupper(trim($_SERVER['REQUEST_METHOD'] ?? 'GET'));
@@ -48,23 +38,11 @@ class Request implements RequestInterface
         return $this->requestMethod;
     }
 
-    /**
-     * Retorna o valor do header Content-Type da requisição.
-     *
-     * Retorna uma string vazia caso o header não tenha sido enviado.
-     */
     public function contentType(): string
     {
         return $this->contentType;
     }
 
-    /**
-     * Verifica se o método HTTP da requisição corresponde ao informado.
-     *
-     * A comparação é insensível a maiúsculas e minúsculas.
-     *
-     * @param string $method Método a comparar (ex: 'get', 'POST').
-     */
     public function isMethod(string $method): bool
     {
         return $this->requestMethod === strtoupper($method);
@@ -146,6 +124,12 @@ class Request implements RequestInterface
             return $this->postParams;
         }
         $content = trim(file_get_contents('php://input'));
-        return json_decode($content, true) ?? [];
+        $data = json_decode($content, true) ?? [];
+
+        if (!is_array($data) && !($data instanceof Stringable)){
+            throw new BadRequest("Verifique o conteúdo da requisição e tente novamente.");
+        }
+
+        return $data;
     }
 }

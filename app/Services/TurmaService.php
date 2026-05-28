@@ -43,7 +43,7 @@ class TurmaService implements TurmaServiceInterface
             new DateTime($data['data_inicio']),
             new DateTime($data['data_fim']),
             $cursoId
-        );
+        )->validated();
 
         $result = $this->turmaRepo->store($turma);
         $this->logger->info("TurmaService::store turmaId={$result->getId()}");
@@ -66,8 +66,9 @@ class TurmaService implements TurmaServiceInterface
             isset($data['data_inicio']) ? new DateTime($data['data_inicio']) : $existing->getDataInicio(),
             isset($data['data_fim'])    ? new DateTime($data['data_fim'])    : $existing->getDataFim(),
             $existing->getCursoId()
-        );
-
+        )->validated();
+        
+        
         $updated = $this->turmaRepo->update($id, $turma);
 
         if ($existing->getStatus() !== StatusTurma::Encerrado && $newStatus === StatusTurma::Encerrado) {

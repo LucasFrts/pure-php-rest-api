@@ -4,15 +4,16 @@ namespace App\Support;
 
 use App\Contracts\RequestValidatorInterface;
 use App\Exceptions\Http\UnprocessableEntity;
+use Psr\Log\LoggerInterface;
 use DateTime;
 
 class RequestValidator implements RequestValidatorInterface
 {
     /**
-     * @param array<string, mixed> $data
+     * @param array<string, mixed>|string $data
      * @param list<string>         $fields
      */
-    public function requireFields(array $data, array $fields): void
+    public function requireFields(array $data, array|string $fields): void
     {
         $missing = [];
 

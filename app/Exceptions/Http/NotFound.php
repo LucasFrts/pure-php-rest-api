@@ -5,6 +5,9 @@ namespace App\Exceptions\Http;
 use App\Contracts\HttpExceptionInterface;
 use RuntimeException;
 
+/**
+ * Erro para recurso não encontrado
+ */
 class NotFound extends RuntimeException implements HttpExceptionInterface
 {
     public function __construct(string $message = 'Not Found')

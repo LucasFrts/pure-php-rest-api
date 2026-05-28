@@ -24,6 +24,7 @@ class CursosController extends BaseController
     public function store(): ResponseInterface
     {
         $data = $this->request()->data();
+
         $this->validator()->requireFields($data, ['titulo', 'descricao', 'tema', 'url_imagem']);
         $this->validator()->parseEnum('tema', $data['tema'], Temas::fromString(...));
 

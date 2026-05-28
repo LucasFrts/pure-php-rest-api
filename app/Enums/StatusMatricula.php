@@ -2,6 +2,8 @@
 
 namespace App\Enums;
 
+use ValueError;
+
 enum StatusMatricula
 {
     case Ativo;
@@ -14,7 +16,7 @@ enum StatusMatricula
             'ativo'     => self::Ativo,
             'inativo'   => self::Inativo,
             'cancelado' => self::Cancelado,
-            default     => throw new \ValueError("Invalid status matricula: {$value}"),
+            default     => throw new ValueError("Invalid status matricula: {$value}"),
         };
     }
 

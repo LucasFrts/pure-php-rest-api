@@ -39,12 +39,21 @@ class MatriculaService implements MatriculaServiceInterface
             if ($this->matriculaRepo->findByUsuarioAndCurso($usuarioId, $turma->getCursoId()) !== null) {
                 throw new UnprocessableEntity('Usuário já matriculado em uma turma deste curso');
             }
+
+            if ($turma->getQuantidadeVagas() <= 0) {
+                throw new UnprocessableEntity("Esta turma já atingiu o limite máximo de vagas.");
+            }
+
         } catch (UnprocessableEntity $e) {
             $this->logger->error("MatriculaService::enroll FAILED: {$e->getMessage()}");
             throw $e;
         }
 
+        // adicionar transição depois
+        $turma->decrementVaga();
         $result = $this->matriculaRepo->store(new Matricula($usuarioId, $turmaId, $turma->getCursoId()));
+        $this->turmaRepo->update($turmaId, $turma);
+
         $this->logger->info("MatriculaService::enroll usuarioId={$usuarioId} turmaId={$turmaId} → matriculaId={$result->getId()}");
         return $result;
     }

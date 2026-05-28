@@ -2,6 +2,8 @@
 
 namespace App\Enums;
 
+use ValueError;
+
 enum Temas
 {
     case Inovacao;
@@ -18,7 +20,7 @@ enum Temas
             'marketing'        => self::Marketing,
             'empreendedorismo' => self::Empreendedorismo,
             'agro'             => self::Agro,
-            default            => throw new \ValueError("Invalid tema: {$value}"),
+            default            => throw new ValueError("Invalid tema: {$value}"),
         };
     }
 

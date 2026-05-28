@@ -6,6 +6,7 @@ use App\Contracts\RequestInterface;
 use App\Contracts\RequestValidatorInterface;
 use App\Contracts\ResponseInterface;
 use App\Support\Container;
+use Psr\Log\LoggerInterface;
 
 class BaseController
 {
@@ -22,6 +23,11 @@ class BaseController
     public function validator(): RequestValidatorInterface
     {
         return $this->getService(RequestValidatorInterface::class);
+    }
+
+    public function logger() : LoggerInterface
+    {
+        return $this->getService(LoggerInterface::class);
     }
 
     private function getService(string $serviceInterface) : mixed
