@@ -25,7 +25,7 @@ class MatriculasIntegrationTest extends IntegrationTestCase
             'quantidade_vagas' => 10,
             'status'           => 'disponivel',
             'data_inicio'      => '2026-01-01',
-            'data_fim'         => '2026-12-01',
+            'data_fim'         => '2027-12-01',
         ]);
         $this->turmaId = $turma->getDataForTest()['data']['id'];
 

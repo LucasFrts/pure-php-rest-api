@@ -23,7 +23,7 @@ class BusinessFlowIntegrationTest extends IntegrationTestCase
             'quantidade_vagas' => 30,
             'status'           => 'disponivel',
             'data_inicio'      => '2026-01-01',
-            'data_fim'         => '2026-06-30',
+            'data_fim'         => '2027-06-30',
         ]);
         $this->assertSame(201, $r->getStatusForTest());
         $turmaId = $r->getDataForTest()['data']['id'];
@@ -52,7 +52,7 @@ class BusinessFlowIntegrationTest extends IntegrationTestCase
             'quantidade_vagas' => 30,
             'status'           => 'encerrado',
             'data_inicio'      => '2026-01-01',
-            'data_fim'         => '2026-06-30',
+            'data_fim'         => '2027-06-30',
         ]);
         $this->assertSame(200, $r->getStatusForTest());
         $this->assertSame('encerrado', $r->getDataForTest()['data']['status']);

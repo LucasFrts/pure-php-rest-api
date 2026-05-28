@@ -47,10 +47,12 @@ class ExceptionHandler
 
     private function getBody(Throwable $e, int $status) : array
     {
+        $isLocal = $this->config->get('APP_ENV') === 'local';
+
         $body = [
             'status' => $status,
             'title'  => $this->titleFromStatus($status),
-            'detail' => $status === 500 ? 'Internal Server Error' : $e->getMessage()
+            'detail' => ($status === 500 && !$isLocal) ? 'Internal Server Error' : $e->getMessage()
         ];
 
         if ($e instanceof UnprocessableEntity && $e->getErrors() !== []) {
@@ -71,10 +73,6 @@ class ExceptionHandler
 
     private function logException(Throwable $e, int $status): void
     {
-        if($e instanceof HttpExceptionInterface){
-            return;
-        }
-
         $context = [
             'status'    => $status,
             'exception' => $e,
