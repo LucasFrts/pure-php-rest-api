@@ -15,7 +15,7 @@
 1. Clone o repositório:
 
    ```bash
-   git clone <url-do-repositorio>
+   git clone https://github.com/seu-usuario/dot-group.git
    cd dot-group
    ```
 
@@ -24,6 +24,8 @@
    ```bash
    docker compose up -d
    ```
+
+   > As dependências PHP (composer install) são instaladas automaticamente durante a construção da imagem Docker. Você não precisa rodar `composer install` manualmente.
 
 3. Rode as migrations:
 
@@ -42,7 +44,7 @@
 ### Rodando os testes
 
 ```bash
-./vendor/bin/phpunit
+docker compose exec app ./vendor/bin/phpunit
 ```
 
 ---
@@ -113,7 +115,7 @@ Todos os endpoints estão sob o prefixo `/api/v1`.
 ## 🧰 Testes
 
 ```bash
-./vendor/bin/phpunit
+docker compose exec app ./vendor/bin/phpunit
 ```
 
 Cobertura de testes unitários e de integração via PHPUnit.
