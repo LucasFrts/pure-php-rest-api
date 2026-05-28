@@ -76,6 +76,10 @@ class Turma implements EntityInterface
             throw new UnprocessableEntity("A data final não pode ser anterior que a data de ínicio.");
         }
 
+        $now = new DateTime();
+        if ($now > $this->dataInicio || $now > $this->dataFim) {
+            throw new UnprocessableEntity("As datas de início e fim não podem ser anteriores à data de hoje");
+        }
         return $this;
     }
 
