@@ -1,141 +1,119 @@
-# dot-group API
+# Pure PHP REST API
 
-**dot-group API** é uma API REST desenvolvida em PHP puro para um processo seletivo. Sem frameworks — apenas padrões PSR, orientação a objeto e boas práticas de arquitetura.
+API REST escrita em **PHP puro**, sem framework. Service container PSR-11 com autowiring, roteador próprio, camada de serviço e repositórios, tudo coberto por testes.
+
+Nasceu como desafio técnico e virou um exercício de arquitetura: reconstruir à mão o que um framework entrega pronto, para entender cada peça.
 
 ---
 
-## 💪 Instruções para rodar localmente
+## 🏗️ Arquitetura
 
-### Pré-requisitos
+```
+app/
+├── Contracts/      interfaces de serviços, repositórios e do core
+├── Entities/       entidades de domínio
+├── Enums/          tipos fechados (status de matrícula, de turma)
+├── Exceptions/     exceções HTTP mapeadas para status code
+├── Http/           controllers finos, sem regra de negócio
+├── Providers/      registro de bindings no container
+├── Repositories/   acesso a dados
+├── Services/       regra de negócio
+└── Support/        o core: Container, Dispatcher, Request, Response,
+                    RequestValidator, ExceptionHandler, Logger, Config
+```
 
-* Docker + Docker Compose
+O que o `Support/` resolve, sem framework:
 
-### Passos para rodar
+* **`Container`** — service container PSR-11 com resolução automática de dependências via Reflection. Registra bindings por interface e instancia o grafo inteiro sozinho.
+* **`Dispatcher`** — roteador com suporte a parâmetros de rota e prefixos de grupo.
+* **`ExceptionHandler`** — exceções de domínio viram resposta HTTP com o status correto, num ponto só.
+* **`RequestValidator`** — validação de entrada antes de chegar no controller.
+* **`Logger`** — Monolog atrás da interface PSR-3.
 
-1. Clone o repositório:
+Controllers dependem de interfaces, nunca de implementações. Trocar o repositório de MySQL por outro é registrar outro binding no provider.
 
-   ```bash
-   git clone https://github.com/seu-usuario/dot-group.git
-   cd dot-group
-   ```
+---
 
-2. Suba os containers:
+## 💪 Rodando localmente
 
-   ```bash
-   docker compose up -d
-   ```
+**Pré-requisito:** Docker + Docker Compose
 
-   > As dependências PHP (composer install) são instaladas automaticamente durante a construção da imagem Docker. Você não precisa rodar `composer install` manualmente.
+```bash
+git clone https://github.com/LucasFrts/pure-php-rest-api.git
+cd pure-php-rest-api
+docker compose up -d
+docker compose exec app php database/migrate.php
+docker compose exec app php database/seed.php
+```
 
-3. Rode as migrations:
+> O `composer install` roda automaticamente na construção da imagem.
 
-   ```bash
-   docker compose exec app php database/migrate.php
-   ```
+A API sobe em `http://localhost:8080`.
 
-4. Rode os seeders:
-
-   ```bash
-   docker compose exec app php database/seed.php
-   ```
-
-5. A API estará disponível em `http://localhost:8080`.
-
-### Rodando os testes
+### Testes
 
 ```bash
 docker compose exec app ./vendor/bin/phpunit
 ```
 
----
-
-## 📬 Documentação dos Endpoints (Bruno)
-
-A API foi documentada utilizando o **Bruno**. Para testar os endpoints de forma fácil:
-
-1. Instale a extensão **Bruno** no VS Code.
-2. Abra a pasta `bruno/` do repositório como uma collection.
-3. Selecione o environment desejado e execute as requisições.
-
-> O Bruno usa o formato padrão de collections (similar ao Postman), sem dependência de conta em nuvem.
+Testes unitários e de integração com PHPUnit.
 
 ---
 
-## 🧐 Processo de desenvolvimento
+## 📬 Documentação dos endpoints
 
-O objetivo foi aproveitar o processo seletivo para colocar em prática, em conjunto, coisas que havia trabalhado de forma isolada — e ver como elas se encaixam numa API completa.
-
-Os principais conceitos explorados foram:
-
-* **Service Container (PSR-11)** — injeção de dependências com autowiring via reflection
-* **Roteamento PHP puro** — sem frameworks, com suporte a parâmetros de rota e prefixos
-* **SOLID e desacoplamento via interfaces** — contratos bem definidos entre camadas
-* **Entidades** — organização e representação dos dados de domínio
-* **Service Layer e Repositories** — separação de responsabilidades entre regras de negócio e acesso a dados
-* **Orientação a objeto** — comunicação entre serviços, aproveitando polimorfismo e encapsulamento
-
-O que começou simples foi crescendo naturalmente, e foi satisfatório ver tudo escalando com uma arquitetura coesa.
+A collection está em `bruno/`, no formato do [Bruno](https://www.usebruno.com/) — padrão aberto, similar ao Postman, sem depender de conta em nuvem. Abra a pasta como collection, selecione o environment e execute.
 
 ---
 
-## ⚙️ Funcionalidades implementadas
+## ⚙️ Endpoints
 
-Todos os endpoints estão sob o prefixo `/api/v1`.
+Todos sob o prefixo `/api/v1`.
 
 ### Cursos
-
-* [x] `GET /cursos` — listar cursos
-* [x] `POST /cursos` — criar curso
-* [x] `PUT /cursos/{id}` — atualizar curso
-* [x] `DELETE /cursos/{id}` — remover curso
+| Método | Rota | O que faz |
+|---|---|---|
+| `GET` | `/cursos` | listar cursos |
+| `POST` | `/cursos` | criar curso |
+| `PUT` | `/cursos/{id}` | atualizar curso |
+| `DELETE` | `/cursos/{id}` | remover curso |
 
 ### Turmas
-
-* [x] `POST /cursos/{cursoId}/turmas` — criar turma
-* [x] `PUT /turmas/{id}` — atualizar turma
-* [x] `DELETE /turmas/{id}` — remover turma
-* [x] `GET /turmas` — listar turmas
-* [x] `GET /cursos/{cursoId}/turmas` — listar turmas por curso
+| Método | Rota | O que faz |
+|---|---|---|
+| `GET` | `/turmas` | listar turmas |
+| `GET` | `/cursos/{cursoId}/turmas` | listar turmas por curso |
+| `POST` | `/cursos/{cursoId}/turmas` | criar turma |
+| `PUT` | `/turmas/{id}` | atualizar turma |
+| `DELETE` | `/turmas/{id}` | remover turma |
 
 ### Usuários
-
-* [x] `GET /usuarios` — listar usuários
-* [x] `POST /usuarios` — criar usuário
-* [x] `DELETE /usuarios/{id}` — remover usuário
+| Método | Rota | O que faz |
+|---|---|---|
+| `GET` | `/usuarios` | listar usuários |
+| `POST` | `/usuarios` | criar usuário |
+| `DELETE` | `/usuarios/{id}` | remover usuário |
 
 ### Matrículas
-
-* [x] `POST /matriculas` — criar matrícula
-* [x] `DELETE /matriculas/{id}` — remover matrícula
-* [x] `PATCH /matriculas/{id}/status` — atualizar status da matrícula
-* [x] `GET /usuarios/{usuarioId}/matriculas` — listar matrículas por usuário
-
----
-
-## 🧰 Testes
-
-```bash
-docker compose exec app ./vendor/bin/phpunit
-```
-
-Cobertura de testes unitários e de integração via PHPUnit.
+| Método | Rota | O que faz |
+|---|---|---|
+| `POST` | `/matriculas` | criar matrícula |
+| `PATCH` | `/matriculas/{id}/status` | atualizar status |
+| `DELETE` | `/matriculas/{id}` | remover matrícula |
+| `GET` | `/usuarios/{usuarioId}/matriculas` | listar matrículas do usuário |
 
 ---
 
-## 📦 Tecnologias utilizadas
+## 📦 Stack
 
-* PHP 8.3
-* Composer
-* Docker + Docker Compose
-* MySQL
-* Monolog (PSR-3)
-* PHPUnit
-* Bruno (documentação de API)
+PHP 8.3 · Composer · Docker · MySQL · Monolog (PSR-3) · PHPUnit · Bruno
+
+Padrões aplicados: PSR-11 (container), PSR-3 (log), SOLID, Service Layer, Repository, Dependency Injection, Enums.
 
 ---
 
 ## 🚀 Retrospectiva
 
-Foi uma boa experiência. No início não planejei algo tão complexo, mas peguei o gosto pela arquitetura e foi gratificante ver tudo crescendo de forma organizada com OOP e bons padrões.
+No início não planejei algo tão complexo. Peguei o gosto pela arquitetura e foi gratificante ver tudo crescendo de forma organizada com OOP e bons padrões.
 
-O ponto negativo foi a quantidade de arquivos e a complexidade de alguns módulos — principalmente o core da API, que concentra bastante responsabilidade e pode ser intimidador para quem está lendo pela primeira vez.
+O ponto negativo foi a quantidade de arquivos e a complexidade de alguns módulos — principalmente o core, que concentra bastante responsabilidade e pode ser intimidador para quem lê pela primeira vez. Se fosse refazer, quebraria o `Support/` em pacotes menores com fronteiras mais explícitas.
